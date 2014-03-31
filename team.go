@@ -32,6 +32,8 @@ func (team *Team) AddPlayer(p *Player, keeper bool) {
 // Release releases all of the players in the roster that are not marked as
 // keepers. Returns an array of the released players.
 func (team *Team) Release() []*Player {
+  team.CreditRosterWithWins()
+
   rostersize := len(team.roster)
   newroster := make([]*Player, 0, rostersize)
   newkeeper := make([]bool, 0, rostersize)
@@ -53,6 +55,16 @@ func (team *Team) Release() []*Player {
   team.keeper = newkeeper
 
   return released
+}
+
+// CreditRosterWithWins adds the wins for this team to every player on the
+// roster, and also increments the number of seasons. This should only be called
+// once per season, ideally by Release().
+func (team *Team) CreditRosterWithWins() {
+  for i := 0; i < len(team.roster); i++ {
+    team.roster[i].total_wins += team.wins
+    team.roster[i].num_seasons++
+  }
 }
 
 //func (team *Team) Get
