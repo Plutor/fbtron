@@ -15,11 +15,7 @@ func (p *Player) SetStat(name string, value float64) {
 }
 
 func (p *Player) GetStat(name string) float64 {
-  val, ok := p.stats[name]
-  if ok {
-    return val
-  }
-  return -1.0
+  return p.stats[name]
 }
 
 func (p *Player) WinsPerDraft() float64 {

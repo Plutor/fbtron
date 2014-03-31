@@ -69,5 +69,48 @@ func TestCreditRosterWithWins(t *testing.T) {
   }
 }
 
+func TestGetTeamStat(t *testing.T) {
+  team := FakeTeam()
+
+  // Test a summed stat
+  team.roster[0].SetStat("R", 1)
+  team.roster[1].SetStat("R", 2)
+  team.roster[2].SetStat("R", 3)
+  team.roster[3].SetStat("R", 10)
+  team.roster[4].SetStat("R", 12)
+  team.roster[5].SetStat("R", 14)
+  if v := team.GetStat("R"); v != 42 {
+    t.Errorf("Error with summed stat, expected 42, got %f", v)
+  }
+
+  // Test an ab-weighted stat
+  team.roster[6].SetStat("BA", 0.200)
+  team.roster[6].SetStat("AB", 10)
+  team.roster[7].SetStat("BA", 0.200)
+  team.roster[7].SetStat("AB", 10)
+  team.roster[8].SetStat("BA", 0.500)
+  team.roster[8].SetStat("AB", 20)
+  if v := team.GetStat("BA"); v != 0.350 {
+    t.Errorf("Error with ab-weighted stat, expected 0.350, got %f", v)
+  }
+
+  // Test an ip-weighted stat
+  team.roster[6].SetStat("ERA", 2.00)
+  team.roster[6].SetStat("IP", 10)
+  team.roster[7].SetStat("ERA", 2.00)
+  team.roster[7].SetStat("IP", 10)
+  team.roster[8].SetStat("ERA", 5.00)
+  team.roster[8].SetStat("IP", 20)
+  if v := team.GetStat("ERA"); v != 3.50 {
+    t.Errorf("Error with ip-weighted stat, expected 3.50, got %f", v)
+  }
+
+  // Test an unknown stat
+  if v := team.GetStat("ZOMGBBQ"); v != 0.0 {
+    t.Errorf("Error with unknown stat, expected 0, got %f", v)
+  }
+
+}
+
 
 // TODO: Get team-wide stats
