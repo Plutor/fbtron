@@ -1,3 +1,3 @@
-package player
+package fbtron
 
 // TODO: Data holder

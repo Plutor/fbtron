@@ -1,10 +1,9 @@
-package player
+package fbtron
 
 import (
-  "fmt"
   "testing"
 )
 
-func TestFoo(t *testing.T) {
-  fmt.Println("success")
+func TestPlayerUnimplemented(t *testing.T) {
+  t.Log("This function will be removed when tests are implemented")
 }
