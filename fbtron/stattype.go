@@ -26,5 +26,5 @@ func GetStatType(name string) int {
   if ok {
     return t
   }
-  return 0
+  return -1
 }
