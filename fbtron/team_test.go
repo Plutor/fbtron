@@ -29,10 +29,10 @@ func TestTeamAddPlayer(t *testing.T) {
   }
 
   for n := range team.roster {
-    if team.roster[n].name != strconv.Itoa(n) {
+    if v := team.roster[n].player.name; v != strconv.Itoa(n) {
       t.Errorf("Error adding player to a team: player %d " +
                "expected name '%s', got '%s'",
-               n, strconv.Itoa(n), team.roster[n].name )
+               n, strconv.Itoa(n), v )
       t.FailNow()
     }
   }
@@ -57,14 +57,14 @@ func TestCreditRosterWithWins(t *testing.T) {
   team.CreditRosterWithWins()
 
   for n := range team.roster {
-    if v := team.roster[n].total_wins; v != team.wins {
+    if v := team.roster[n].player.total_wins; v != team.wins {
       t.Errorf("Error crediting roster: team has %d wins, player '%s' has %d",
-               team.wins, team.roster[n].name, v)
+               team.wins, team.roster[n].player.name, v)
     }
-    if v := team.roster[n].num_seasons; v != 1 {
+    if v := team.roster[n].player.num_seasons; v != 1 {
       t.Errorf("Error crediting roster: expected num_seasons=1, " +
                "player '%s' has %d",
-               team.roster[n].name, v)
+               team.roster[n].player.name, v)
     }
   }
 }
@@ -73,34 +73,34 @@ func TestGetTeamStat(t *testing.T) {
   team := FakeTeam()
 
   // Test a summed stat
-  team.roster[0].SetStat("R", 1)
-  team.roster[1].SetStat("R", 2)
-  team.roster[2].SetStat("R", 3)
-  team.roster[3].SetStat("R", 10)
-  team.roster[4].SetStat("R", 12)
-  team.roster[5].SetStat("R", 14)
+  team.roster[0].player.SetStat("R", 1)
+  team.roster[1].player.SetStat("R", 2)
+  team.roster[2].player.SetStat("R", 3)
+  team.roster[3].player.SetStat("R", 10)
+  team.roster[4].player.SetStat("R", 12)
+  team.roster[5].player.SetStat("R", 14)
   if v := team.GetStat("R"); v != 42 {
     t.Errorf("Error with summed stat, expected 42, got %f", v)
   }
 
   // Test an ab-weighted stat
-  team.roster[6].SetStat("BA", 0.200)
-  team.roster[6].SetStat("AB", 10)
-  team.roster[7].SetStat("BA", 0.200)
-  team.roster[7].SetStat("AB", 10)
-  team.roster[8].SetStat("BA", 0.500)
-  team.roster[8].SetStat("AB", 20)
+  team.roster[6].player.SetStat("BA", 0.200)
+  team.roster[6].player.SetStat("AB", 10)
+  team.roster[7].player.SetStat("BA", 0.200)
+  team.roster[7].player.SetStat("AB", 10)
+  team.roster[8].player.SetStat("BA", 0.500)
+  team.roster[8].player.SetStat("AB", 20)
   if v := team.GetStat("BA"); v != 0.350 {
     t.Errorf("Error with ab-weighted stat, expected 0.350, got %f", v)
   }
 
   // Test an ip-weighted stat
-  team.roster[6].SetStat("ERA", 2.00)
-  team.roster[6].SetStat("IP", 10)
-  team.roster[7].SetStat("ERA", 2.00)
-  team.roster[7].SetStat("IP", 10)
-  team.roster[8].SetStat("ERA", 5.00)
-  team.roster[8].SetStat("IP", 20)
+  team.roster[6].player.SetStat("ERA", 2.00)
+  team.roster[6].player.SetStat("IP", 10)
+  team.roster[7].player.SetStat("ERA", 2.00)
+  team.roster[7].player.SetStat("IP", 10)
+  team.roster[8].player.SetStat("ERA", 5.00)
+  team.roster[8].player.SetStat("IP", 20)
   if v := team.GetStat("ERA"); v != 3.50 {
     t.Errorf("Error with ip-weighted stat, expected 3.50, got %f", v)
   }
