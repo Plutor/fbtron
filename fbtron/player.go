@@ -1,5 +1,13 @@
 package fbtron
 
+import (
+  "encoding/csv"
+  "fmt"
+  "io"
+  "os"
+  "strconv"
+)
+
 type Player struct {
   name            string
   stats           map[string]float64
@@ -28,4 +36,69 @@ func (p *Player) WinsPerDraft() float64 {
 func (p *Player) ResetWins() {
   p.total_wins = 0
   p.num_seasons = 0
+}
+
+// BuildPlayersFromCsv reads a CSV file and returns an array of player objects,
+// one for each row. Assumes the first row is labels. Every column whose label
+// is defined in StatType has its value set.
+func BuildPlayersFromCsv(filename string) []*Player {
+  file, err := os.Open(filename)
+  if err != nil {
+    fmt.Println("Error:", err)
+    return []*Player {}
+  }
+  defer file.Close()
+  reader := csv.NewReader(file)
+
+  var header []string
+  var players []*Player
+  for {
+    record, err := reader.Read()
+    if err == io.EOF {
+      break
+    } else if err != nil {
+      fmt.Printf("Error reading %s: %s\n", filename, err)
+      continue
+    }
+
+    if header == nil {
+      header = record
+    } else {
+      newplayer := BuildPlayerFromCsvRecord(header, record)
+      if newplayer != nil {
+        if len(players) == cap(players) {
+          newplayers := make([]*Player, len(players), (len(players)+1)*2)
+          copy(newplayers, players)
+          players = newplayers
+        }
+        players = players[:len(players)+1]
+        players[len(players)-1] = newplayer
+      }
+    }
+  }
+
+  // Assume the caller will close the file handle
+  return players
+}
+
+func BuildPlayerFromCsvRecord(header []string, record []string) *Player {
+  columns := len(header)
+  if len(record) < columns {
+    columns = len(record)
+  }
+  if columns == 0 {
+    return nil
+  }
+
+  p := new(Player)
+  for n := 0; n < columns; n ++ {
+    if GetStatType(header[n]) != -1 {
+      val, err := strconv.ParseFloat(record[n], 64)
+      if err == nil {
+        p.SetStat(header[n], val)
+      }
+    }
+  }
+
+  return p
 }
