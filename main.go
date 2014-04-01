@@ -33,7 +33,7 @@ func main() {
     for n := range sendchannels {
       sendchannels[n] <- "ping"
       response := <-recvchannels[n]
-      fmt.Println("Got response from simulation thread %d: ran %d seasons",
+      fmt.Printf("Got response from simulation thread %d: ran %d seasons\n",
                   n, response.Num_seasons)
     }
 
