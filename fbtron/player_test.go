@@ -4,10 +4,6 @@ import (
   "testing"
 )
 
-func TestPlayerUnimplemented(t *testing.T) {
-  t.Log("This function will be removed when tests are implemented")
-}
-
 func TestSetStat(t *testing.T) {
   p := new(Player)
   p.SetStat("test", 1.0)

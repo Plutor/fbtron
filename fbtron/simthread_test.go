@@ -4,10 +4,6 @@ import (
   "testing"
 )
 
-func TestSimthreadUnimplemented(t *testing.T) {
-  t.Log("This function will be removed when tests are implemented")
-}
-
 // TODO: Test starting a simulation thread, ask it for data, make sure data is
 // good.
 
