@@ -122,4 +122,7 @@ func TestBuildPlayerFromCsvRecord(t *testing.T) {
   if v := player.positions; len(v) != 1 || v[0] != "SP" {
     t.Errorf("BuildPlayerFromCsvRecord: expected position SP, got %s", v)
   }
+
+  // TODO: Player with same position as default
+  // TODO: Empty string as default
 }

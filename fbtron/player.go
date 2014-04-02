@@ -119,7 +119,15 @@ func BuildPlayerFromCsvRecord(
     }
   }
 
-  p.positions = append(p.positions, default_position)
+  // Add default position if it's non-blank and isn't already a position
+  if default_position != "" {
+    for n := range p.positions {
+      if p.positions[n] == default_position {
+        return p
+      }
+    }
+    p.positions = append(p.positions, default_position)
+  }
 
   return p
 }
