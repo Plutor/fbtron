@@ -32,11 +32,17 @@ func (team *Team) GetOpenPosition() string {
 // AddPlayer adds the passed player to the team roster. If keeper is true, the
 // player will not be released by the Release() call.
 func (team *Team) AddPlayer(p *Player, keeper bool) {
-  // TODO: Select the position properly for players with multiple positions.
-  pos := p.positions[0]
-  if len(team.roster[pos]) == cap(team.roster[pos]) {
-    // TODO: This is a bad problem -- prevent it!
-    // No open spots! ONO
+  // Select an open position for players with multiple positions.
+  var pos string
+  for n := range p.positions {
+    thispos := p.positions[n]
+    if len(team.roster[thispos]) < cap(team.roster[thispos]) {
+      pos = thispos
+    }
+  }
+  if pos == "" {
+    // TODO: No open positions is potentially a bad problem. Instead, create a
+    // special "overflow" player type that is used in this case.
     return
   }
 

@@ -5,19 +5,19 @@ import (
   "testing"
 )
 
-// FakeTeam generates a fake team for testing. It has 99 players on its roster,
+// FakeTeam generates a fake team for testing. It has 6 players on its roster,
 // each named after their index. Every third one (starting with the first) is a
-// keeper (so 33 total). The team has 10 wins.
+// keeper (so 2 total). The team has 10 wins.
 func FakeTeam() *Team {
   team := new(Team)
   team.wins = 10
   team.SetPositions(map[string]int {
     "1B": 1,
     "SP": 1,
-    "Fake": 99,
+    "Fake": 6,
   })
 
-  for n := 0; n < 99; n++ {
+  for n := 0; n < 6; n++ {
     player := new(Player)
     player.firstname = strconv.Itoa(n)
     player.positions = []string { "Fake" }
@@ -53,8 +53,8 @@ func TestGetOpenPosition(t *testing.T) {
 
 func TestTeamAddPlayer(t *testing.T) {
   team := FakeTeam()
-  if v := len(team.roster["Fake"]); v != 99 {
-    t.Errorf("Error adding players to a team: expected 99 Fakes, got %d", v)
+  if v := len(team.roster["Fake"]); v != 6 {
+    t.Errorf("Error adding players to a team: expected 6 Fakes, got %d", v)
     t.FailNow()
   }
 
@@ -66,19 +66,39 @@ func TestTeamAddPlayer(t *testing.T) {
       t.FailNow()
     }
   }
+
+  player := Player {
+      firstname: "Openposition",
+      lastname: "Filler",
+      positions: []string { "1B", "SP" },
+  }
+  team.AddPlayer(&player, false)
+  if len(team.roster["1B"]) != 1 && len(team.roster["SP"]) != 1 {
+    t.Errorf("Error adding 1B/SP to a team", team.roster)
+  }
+
+  player = Player {
+      firstname: "Openposition",
+      lastname: "Filler, Jr.",
+      positions: []string { "1B", "SP" },
+  }
+  team.AddPlayer(&player, false)
+  if len(team.roster["1B"]) != 1 || len(team.roster["SP"]) != 1 {
+    t.Errorf("Error adding a second 1B/SP to a team")
+  }
 }
 
 func TestRelease(t *testing.T) {
   team := FakeTeam()
 
   released := team.Release()
-  if len(released) != 66 {
+  if len(released) != 4 {
     t.Errorf("Error releasing non-keeper players: " +
-             "expected 66 released, got %d", len(released))
+             "expected 4 released, got %d", len(released))
   }
-  if v := len(team.roster["Fake"]); v != 33 {
+  if v := len(team.roster["Fake"]); v != 2 {
     t.Errorf("Error releasing non-keeper players: " +
-             "expected 33 remaining, got %d", v)
+             "expected 2 remaining, got %d", v)
   }
 }
 
@@ -104,33 +124,30 @@ func TestGetTeamStat(t *testing.T) {
 
   // Test a summed stat
   team.roster["Fake"][0].player.SetStat("R", 1)
-  team.roster["Fake"][1].player.SetStat("R", 2)
-  team.roster["Fake"][2].player.SetStat("R", 3)
-  team.roster["Fake"][3].player.SetStat("R", 10)
-  team.roster["Fake"][4].player.SetStat("R", 12)
-  team.roster["Fake"][5].player.SetStat("R", 14)
+  team.roster["Fake"][1].player.SetStat("R", 1)
+  team.roster["Fake"][2].player.SetStat("R", 40)
   if v := team.GetStat("R"); v != 42 {
     t.Errorf("Error with summed stat, expected 42, got %f", v)
   }
 
   // Test an ab-weighted stat
-  team.roster["Fake"][6].player.SetStat("BA", 0.200)
-  team.roster["Fake"][6].player.SetStat("AB", 10)
-  team.roster["Fake"][7].player.SetStat("BA", 0.200)
-  team.roster["Fake"][7].player.SetStat("AB", 10)
-  team.roster["Fake"][8].player.SetStat("BA", 0.500)
-  team.roster["Fake"][8].player.SetStat("AB", 20)
+  team.roster["Fake"][0].player.SetStat("BA", 0.200)
+  team.roster["Fake"][0].player.SetStat("AB", 10)
+  team.roster["Fake"][1].player.SetStat("BA", 0.200)
+  team.roster["Fake"][1].player.SetStat("AB", 10)
+  team.roster["Fake"][2].player.SetStat("BA", 0.500)
+  team.roster["Fake"][2].player.SetStat("AB", 20)
   if v := team.GetStat("BA"); v != 0.350 {
     t.Errorf("Error with ab-weighted stat, expected 0.350, got %f", v)
   }
 
   // Test an ip-weighted stat
-  team.roster["Fake"][6].player.SetStat("ERA", 2.00)
-  team.roster["Fake"][6].player.SetStat("IP", 10)
-  team.roster["Fake"][7].player.SetStat("ERA", 2.00)
-  team.roster["Fake"][7].player.SetStat("IP", 10)
-  team.roster["Fake"][8].player.SetStat("ERA", 5.00)
-  team.roster["Fake"][8].player.SetStat("IP", 20)
+  team.roster["Fake"][0].player.SetStat("ERA", 2.00)
+  team.roster["Fake"][0].player.SetStat("IP", 10)
+  team.roster["Fake"][1].player.SetStat("ERA", 2.00)
+  team.roster["Fake"][1].player.SetStat("IP", 10)
+  team.roster["Fake"][2].player.SetStat("ERA", 5.00)
+  team.roster["Fake"][2].player.SetStat("IP", 20)
   if v := team.GetStat("ERA"); v != 3.50 {
     t.Errorf("Error with ip-weighted stat, expected 3.50, got %f", v)
   }
