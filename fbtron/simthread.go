@@ -12,9 +12,17 @@ type Simulation struct {
   Avail_players   []*Player
 }
 
-var POSITIONS []string = []string {
-  "C", "1B", "2B", "SS", "3B", "OF", "OF", "OF", "OF",
-  "SP", "SP", "RP", "RP", "P", "P", "P", "P",
+var POSITIONS map[string]int = map[string]int {
+  "C":    1,
+  "1B":   1,
+  "2B":   1,
+  "SS":   1,
+  "3B":   1,
+  "OF":   4,
+  "Util": 2,
+  "SP":   2,
+  "RP":   2,
+  "P":    4,
 }
 
 var num_teams = flag.Int("teams", 10, "Number of teams")
@@ -50,8 +58,8 @@ func RunSimulation(inchan <-chan string, outchan chan<- Simulation) {
 
 // InitPlayers loads a set of players from the CSV files in the data directory.
 func (sim *Simulation) InitPlayers() {
-  batters := BuildPlayersFromCsv("data/steamer_hitters_2014_update.csv")
-  pitchers := BuildPlayersFromCsv("data/steamer_pitchers_2014_update.csv")
+  batters := BuildPlayersFromCsv("data/steamer_hitters_2014_update.csv", "Util")
+  pitchers := BuildPlayersFromCsv("data/steamer_pitchers_2014_update.csv", "P")
 
   sim.Avail_players = make([]*Player, len(batters) + len(pitchers))
   copy(sim.Avail_players, batters)
@@ -67,19 +75,35 @@ func (sim *Simulation) InitPlayers() {
 func (sim *Simulation) InitTeams() {
   sim.Teams = make([]Team, *num_teams)
   for n := 0; n < *num_teams; n ++ {
-    sim.Teams[n] = Team {}
-    sim.Teams[n].name = fmt.Sprintf("Team %d", n)
+    sim.Teams[n] = Team {
+      name: fmt.Sprintf("Team %d", n),
+    }
+    sim.Teams[n].SetPositions(POSITIONS)
   }
-
-  // TODO: Tell the teams what their roster is like.
 }
 
 // Run season simulates a single simulated season.
 func (sim *Simulation) RunSeason() {
   sim.Num_seasons++
 
+  sim.DoDraft()
+  sim.ScoreSeason()
+  sim.EndSeason()
+}
+
+func (sim *Simulation) DoDraft() {
   // TODO: Perform the draft
-  // TODO: Compare all pairs of teams
-  // TODO: Award wins
-  // TODO: End the season
+}
+
+func (sim *Simulation) ScoreSeason() {
+  // TODO: Compare all pairs of teams and award wins
+}
+
+// EndSeason releases all non-keeper players (which implicitly credits them with
+// their team's wins) and adds them back to the available players pool.
+func (sim *Simulation) EndSeason() {
+  for n := range sim.Teams {
+    released_players := sim.Teams[n].Release()
+    sim.Avail_players = append(sim.Avail_players, released_players...)
+  }
 }
