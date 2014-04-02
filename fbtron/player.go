@@ -50,7 +50,7 @@ func (p *Player) ResetWins() {
 // BuildPlayersFromCsv reads a CSV file and returns an array of player objects,
 // one for each row. Assumes the first row is labels. Every column whose label
 // is defined in StatType has its value set.
-func BuildPlayersFromCsv(filename string) []*Player {
+func BuildPlayersFromCsv(filename string, default_position string) []*Player {
   file, err := os.Open(filename)
   if err != nil {
     fmt.Println("Error:", err)
@@ -73,7 +73,7 @@ func BuildPlayersFromCsv(filename string) []*Player {
     if header == nil {
       header = record
     } else {
-      newplayer := BuildPlayerFromCsvRecord(header, record)
+      newplayer := BuildPlayerFromCsvRecord(header, record, default_position)
       if newplayer != nil {
         if len(players) == cap(players) {
           newplayers := make([]*Player, len(players), (len(players)+1)*2)
@@ -90,7 +90,8 @@ func BuildPlayersFromCsv(filename string) []*Player {
   return players
 }
 
-func BuildPlayerFromCsvRecord(header []string, record []string) *Player {
+func BuildPlayerFromCsvRecord(
+    header []string, record []string, default_position string) *Player {
   columns := len(header)
   if len(record) < columns {
     columns = len(record)
@@ -117,6 +118,8 @@ func BuildPlayerFromCsvRecord(header []string, record []string) *Player {
       }
     }
   }
+
+  p.positions = append(p.positions, default_position)
 
   return p
 }
