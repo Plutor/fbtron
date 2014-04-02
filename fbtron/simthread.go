@@ -33,7 +33,7 @@ func RunSimulation(inchan <-chan string, outchan chan<- Simulation) {
   var sim Simulation
 
   sim.InitPlayers()
-  sim.InitTeams()
+  sim.InitTeams(POSITIONS)
 
   for {
     select {
@@ -72,13 +72,13 @@ func (sim *Simulation) InitPlayers() {
 }
 
 // InitTeams creates a set of teams with empty rosters.
-func (sim *Simulation) InitTeams() {
+func (sim *Simulation) InitTeams(positions map[string]int) {
   sim.Teams = make([]Team, *num_teams)
   for n := 0; n < *num_teams; n ++ {
     sim.Teams[n] = Team {
       name: fmt.Sprintf("Team %d", n),
     }
-    sim.Teams[n].SetPositions(POSITIONS)
+    sim.Teams[n].SetPositions(positions)
   }
 }
 

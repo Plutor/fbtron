@@ -1,6 +1,6 @@
-firstname,lastname,R,RBI
-Foo,Bar,100,200
-Foo,Bar2,100,200
-Foo,Bar3,100,200
-Foo,Bar4,100,200
-Foo,Bar5,100,200
+firstname,lastname,R,RBI,position
+Foo,Bar,100,200,SP
+Foo,Bar2,100,200,1B
+Foo,Bar3,100,200,SP
+Foo,Bar4,100,200,SP
+Foo,Bar5,100,200,SP
