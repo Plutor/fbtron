@@ -9,7 +9,9 @@ import (
 )
 
 type Player struct {
-  name            string
+  firstname       string
+  lastname        string
+  positions       []string
   stats           map[string]float64
   num_seasons     int
   total_wins      int
@@ -24,6 +26,13 @@ func (p *Player) SetStat(name string, value float64) {
 
 func (p *Player) GetStat(name string) float64 {
   return p.stats[name]
+}
+
+func (p *Player) GetName() string {
+  if p.lastname == "" {
+    return p.firstname
+  }
+  return fmt.Sprintf("%s %s", p.firstname, p.lastname)
 }
 
 func (p *Player) WinsPerDraft() float64 {
@@ -92,10 +101,19 @@ func BuildPlayerFromCsvRecord(header []string, record []string) *Player {
 
   p := new(Player)
   for n := 0; n < columns; n ++ {
-    if GetStatType(header[n]) != -1 {
-      val, err := strconv.ParseFloat(record[n], 64)
-      if err == nil {
-        p.SetStat(header[n], val)
+    switch header[n] {
+    case "firstname":
+      p.firstname = record[n]
+    case "lastname":
+      p.lastname = record[n]
+    case "position":
+      p.positions = []string { record[n] }
+    default:
+      if GetStatType(header[n]) != -1 {
+        val, err := strconv.ParseFloat(record[n], 64)
+        if err == nil {
+          p.SetStat(header[n], val)
+        }
       }
     }
   }

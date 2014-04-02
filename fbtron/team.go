@@ -23,8 +23,13 @@ func (team *Team) AddPlayer(p *Player, keeper bool) {
     team.roster = newroster
   }
 
-  // TODO: save position properly
-  newtm := TeamMember {p, keeper, ""}
+  var string pos
+  for n := range p.positions {
+    // TODO: do this properly
+    pos = p.positions[n]
+    break
+  }
+  newtm := TeamMember {p, keeper, position}
 
   // Add to the end of the arrays
   team.roster = team.roster[0:nthplayer]

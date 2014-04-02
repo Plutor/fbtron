@@ -101,6 +101,9 @@ func TestBuildPlayerFromCsvRecord(t *testing.T) {
   if (player == nil) {
     t.Errorf("BuildPlayerFromCsvRecord: expected Player, got nil")
   }
+  if v := player.GetName(); v != "Foo Bar" {
+    t.Errorf("BuildPlayerFromCsvRecord: expected name Foo Bar, got '%s'", v)
+  }
   if v := player.GetStat("R"); v != 100 {
     t.Errorf("BuildPlayerFromCsvRecord: expected R=100, got %f", v)
   }
