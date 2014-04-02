@@ -1,6 +1,7 @@
 package fbtron
 
 import (
+  "fmt"
   "runtime"
 )
 
@@ -14,6 +15,9 @@ type Simulation struct {
 // about events, and it replies with its current status.
 func RunSimulation(inchan <-chan string, outchan chan<- Simulation) {
   var sim Simulation
+
+  sim.InitPlayers()
+  sim.InitTeams()
 
   for {
     select {
@@ -36,8 +40,23 @@ func RunSimulation(inchan <-chan string, outchan chan<- Simulation) {
   }
 }
 
+// InitPlayers loads a set of players from the CSV files in the data directory.
 func (sim *Simulation) InitPlayers() {
-  // TODO: Load player data from CSV files
+  batters := BuildPlayersFromCsv("data/steamer_hitters_2014_update.csv")
+  pitchers := BuildPlayersFromCsv("data/steamer_pitchers_2014_update.csv")
+
+  sim.Avail_players = make([]*Player, len(batters) + len(pitchers))
+  copy(sim.Avail_players, batters)
+  for n := range pitchers {
+    sim.Avail_players[len(batters) + n] = pitchers[n]
+  }
+
+  fmt.Printf("Loaded %d players (%d batters, %d pitchers)\n",
+             len(sim.Avail_players), len(batters), len(pitchers))
+}
+
+func (sim *Simulation) InitTeams() {
+  // TODO: Create N teams.
 }
 
 // Run season simulates a single simulated season.
