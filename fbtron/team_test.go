@@ -156,8 +156,4 @@ func TestGetTeamStat(t *testing.T) {
   if v := team.GetStat("ZOMGBBQ"); v != 0.0 {
     t.Errorf("Error with unknown stat, expected 0, got %f", v)
   }
-
 }
-
-
-// TODO: Get team-wide stats
