@@ -1,6 +1,7 @@
 package fbtron
 
 import (
+  "flag"
   "fmt"
   "runtime"
 )
@@ -10,6 +11,13 @@ type Simulation struct {
   Num_seasons     int
   Avail_players   []*Player
 }
+
+var POSITIONS []string = []string {
+  "C", "1B", "2B", "SS", "3B", "OF", "OF", "OF", "OF",
+  "SP", "SP", "RP", "RP", "P", "P", "P", "P",
+}
+
+var num_teams = flag.Int("teams", 10, "Number of teams")
 
 // RunSimulation is run as a goroutine. It receives information from main()
 // about events, and it replies with its current status.
@@ -55,8 +63,15 @@ func (sim *Simulation) InitPlayers() {
              len(sim.Avail_players), len(batters), len(pitchers))
 }
 
+// InitTeams creates a set of teams with empty rosters.
 func (sim *Simulation) InitTeams() {
-  // TODO: Create N teams.
+  sim.Teams = make([]Team, *num_teams)
+  for n := 0; n < *num_teams; n ++ {
+    sim.Teams[n] = Team {}
+    sim.Teams[n].name = fmt.Sprintf("Team %d", n)
+  }
+
+  // TODO: Tell the teams what their roster is like.
 }
 
 // Run season simulates a single simulated season.
