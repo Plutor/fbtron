@@ -36,10 +36,10 @@ func main() {
       var bestplayer *fbtron.Player
       var bestwpd float64
 
-      for p := range sim.Avail_players {
-        if bestplayer == nil || sim.Avail_players[p].WinsPerDraft() > bestwpd {
-          bestplayer = sim.Avail_players[p]
-          bestwpd = bestplayer.WinsPerDraft()
+      for _, player := range sim.All_players {
+        if bestplayer == nil || player.WinsPerDraft() > bestwpd {
+          bestplayer = player
+          bestwpd = player.WinsPerDraft()
         }
       }
 

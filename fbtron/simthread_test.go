@@ -8,7 +8,8 @@ func FakeSimulation() Simulation {
   var sim Simulation
 
   // Fake init players
-  sim.Avail_players = BuildPlayersFromCsv("testdata/players_csv_ok.csv", "")
+  sim.AddPlayersToPositionLists(
+      BuildPlayersFromCsv("testdata/players_csv_ok.csv", ""))
 
   // Init teams
   *num_teams = 2
@@ -40,7 +41,13 @@ func TestInitPlayers(t *testing.T) {
   // TODO: Fix no such file or directory error
   // sim.InitPlayers()
   if v := len(sim.Avail_players); v <= 0 {
-    t.Errorf("InitPlayers: expected to load >0 players, got %d", v)
+    t.Errorf("InitPlayers: expected to load >0 positions, got %d", v)
+  }
+  if v := len(sim.Avail_players["SP"]); v <= 0 {
+    t.Errorf("InitPlayers: expected to load >0 SP, got %d", v)
+  }
+  if v := len(sim.Avail_players["1B"]); v <= 0 {
+    t.Errorf("InitPlayers: expected to load >0 1B, got %d", v)
   }
 }
 
@@ -66,10 +73,15 @@ func TestDoDraft(t *testing.T) {
     if v := sim.Teams[n].GetOpenPosition(); v != "" {
       t.Errorf("DoDraft: team %d expected blank empty position, got '%s'", n, v)
     }
-    if len(sim.Avail_players) != 1 {
-      t.Errorf("DoDraft: team %d expected 1 available player, got\n%s",
-               n, sim.Avail_players)
-    }
+  }
+
+  num_players := 0
+  for _, players := range sim.Avail_players {
+    num_players += len(players)
+  }
+  if num_players != 1 {
+    t.Errorf("DoDraft: expected 1 available player after draft, got %d",
+             num_players)
   }
 }
 
@@ -80,43 +92,32 @@ func BenchmarkDoDraft(b *testing.B) {
   }
 }
 
-func TestRandomAvailablePlayerIndex(t *testing.T) {
+func TestAddPlayersToPositionLists(t *testing.T) {
+  sim := FakeSimulation()
+
+  if v := len(sim.Avail_players); v != 2 {
+    t.Errorf("AddPlayersToPositionLists: expected 2 position indexes, got %d",
+             v)
+  }
+  if v := len(sim.Avail_players["SP"]); v != 3 {
+    t.Errorf("AddPlayersToPositionLists: expected 3 SP, got %d", v)
+  }
+  if v := len(sim.Avail_players["1B"]); v != 2 {
+    t.Errorf("AddPlayersToPositionLists: expected 2 1B, got %d", v)
+  }
+
+}
+
+func TestRandomAvailablePlayer(t *testing.T) {
   sim := FakeSimulation()
 
   // Remove players one by one, requesting a random player index, and making
   // sure it always falls in the range of 0<n<len(players)
-  for ; len(sim.Avail_players) > 0;
-      sim.Avail_players = sim.Avail_players[:len(sim.Avail_players)-1] {
-    valid_pos := sim.Avail_players[0].positions[0]
-    if v := sim.RandomAvailablePlayerIndex(valid_pos);
-        v < 0 || v >= len(sim.Avail_players) {
-      t.Errorf("RandomAvailablePlayerIndex: expected 0<index<%d, got %d",
-               len(sim.Avail_players), v)
-    }
-  }
-}
-
-func TestAllAvailablePlayersIndexes(t *testing.T) {
-  sim := FakeSimulation()
-
-  if v := sim.AllAvailablePlayersIndexes("1B"); len(v) != 2 {
-    t.Errorf("AllAvailablePlayersIndexes: expected len() == 2, got %d", v)
-  } else {
-    for n := range v {
-      if v[n] < 0 || v[n] >= len(sim.Avail_players) {
-        t.Errorf("AllAvailablePlayersIndexes: expected 0<index<%d, got %d",
-                 len(sim.Avail_players), v[n])
-      }
-    }
-  }
-
-  if v := sim.AllAvailablePlayersIndexes("SP"); len(v) != 3 {
-    t.Errorf("AllAvailablePlayersIndexes: expected len() == 3, got %d", v)
-  } else {
-    for n := range v {
-      if v[n] < 0 || v[n] >= len(sim.Avail_players) {
-        t.Errorf("AllAvailablePlayersIndexes: expected 0<index<%d, got %d",
-                 len(sim.Avail_players), v[n])
+  for _, pos := range []string{"SP", "1B"} {
+    for len(sim.Avail_players[pos]) > 0 {
+      if v := sim.RandomAvailablePlayer(pos); v == nil {
+        t.Errorf("RandomAvailablePlayer: expected a Player for %s, got %s",
+                 pos, v)
       }
     }
   }
@@ -148,18 +149,24 @@ func TestScoreSeason(t *testing.T) {
 func TestEndSeason(t *testing.T) {
   sim := FakeSimulation()
 
-  num_players := len(sim.Avail_players)
-  sim.DoDraft()
-
-  if v := len(sim.Avail_players); v >= num_players {
-    t.Errorf("EndSeason: expected numplayers decreased, got %d >= %d",
-             v, num_players)
+  num_players_start := 0
+  for _, players := range sim.Avail_players {
+    num_players_start += len(players)
   }
 
+  sim.DoDraft()
+
+  // End the season and expect the number of players to be back where we
+  // started.
   sim.EndSeason()
-  if v := len(sim.Avail_players); v != num_players {
-    t.Errorf("EndSeason: expected numplayers unchanged, got %d != %d",
-             v, num_players)
+
+  num_players := 0
+  for _, players := range sim.Avail_players {
+    num_players += len(players)
+  }
+  if num_players != num_players_start {
+    t.Errorf("EndSeason: expected num_players unchanged, got %d != %d",
+             num_players, num_players_start)
   }
 
   // TODO: Also add wins and make sure the players all got the wins applied.

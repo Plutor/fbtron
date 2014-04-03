@@ -7,10 +7,13 @@ import (
   "runtime"
 )
 
+type PlayerSlice []*Player
+
 type Simulation struct {
   Teams           []Team
   Num_seasons     int
-  Avail_players   []*Player
+  Avail_players   map[string]PlayerSlice
+  All_players     PlayerSlice
 }
 
 var POSITIONS map[string]int = map[string]int {
@@ -61,15 +64,32 @@ func RunSimulation(inchan <-chan string, outchan chan<- Simulation) {
 func (sim *Simulation) InitPlayers() {
   batters := BuildPlayersFromCsv("data/steamer_hitters_2014_update.csv", "Util")
   pitchers := BuildPlayersFromCsv("data/steamer_pitchers_2014_update.csv", "P")
+  sim.AddPlayersToPositionLists(batters)
+  sim.AddPlayersToPositionLists(pitchers)
 
-  sim.Avail_players = make([]*Player, len(batters) + len(pitchers))
-  copy(sim.Avail_players, batters)
-  for n := range pitchers {
-    sim.Avail_players[len(batters) + n] = pitchers[n]
+  //sim.All_players = make(PlayerSlice, len(batters) + len(pitchers))
+  sim.All_players = append(batters, pitchers...)
+}
+
+func (sim *Simulation) AddPlayersToPositionLists(players PlayerSlice) {
+  if sim.Avail_players == nil {
+    sim.Avail_players = make(map[string]PlayerSlice)
   }
 
-  fmt.Printf("Loaded %d players (%d batters, %d pitchers)\n",
-             len(sim.Avail_players), len(batters), len(pitchers))
+  num_players := 0
+  num_player_pos := 0
+
+  for n := range players {
+    num_players++
+    for _, pos := range players[n].positions {
+      num_player_pos++
+      if sim.Avail_players[pos] == nil {
+        sim.Avail_players[pos] = make(PlayerSlice, 0)
+      }
+
+      sim.Avail_players[pos] = append(sim.Avail_players[pos], players[n])
+    }
+  }
 }
 
 // InitTeams creates a set of teams with empty rosters.
@@ -102,45 +122,42 @@ func (sim *Simulation) DoDraft() {
       }
 
       // Choose a random available player
-      pindex := sim.RandomAvailablePlayerIndex(pos)
-      if pindex < 0 {
+      p := sim.RandomAvailablePlayer(pos)
+      if p == nil {
         // None available! BIG PROBLEM!
         // TODO: What do we do?
         break
       }
 
-      // Add to the team, remove from available
-      team.AddPlayer(sim.Avail_players[pindex], false)
-      sim.Avail_players = append(sim.Avail_players[:pindex],
-                                 sim.Avail_players[pindex+1:]...)
+      // Add to the team
+      team.AddPlayer(p, false)
     }
   }
 }
 
 // RandomAvailablePlayerIndex returns the index of a random available player
 // that plays the given position.
-func (sim *Simulation) RandomAvailablePlayerIndex(position string) int {
-  allindexes := sim.AllAvailablePlayersIndexes(position)
-  if len(allindexes) == 0 {
-    return -1
+func (sim *Simulation) RandomAvailablePlayer(position string) *Player {
+  allplayers := sim.Avail_players[position]
+  if len(allplayers) == 0 {
+    return nil
   }
-  // TODO: Use weighted randomness, picking better players more often.
-  return allindexes[rand.Intn(len(allindexes))]
-}
 
-// RandomAvailablePlayerIndex returns the indexes of all of the available
-// players that play the given position.
-func (sim *Simulation) AllAvailablePlayersIndexes(position string) []int {
-  allindexes := make([]int, 0, len(sim.Avail_players))
-  for n := range sim.Avail_players {
-    for pos := range sim.Avail_players[n].positions {
-      if sim.Avail_players[n].positions[pos] == position {
-        allindexes = append(allindexes, n)
+  // TODO: Use weighted randomness, picking better players more often.
+  p := allplayers[rand.Intn(len(allplayers))]
+
+  // Remove from any position list
+  for _, pos := range p.positions {
+    for n := range sim.Avail_players[pos] {
+      if sim.Avail_players[pos][n] == p {
+        sim.Avail_players[pos] = append(sim.Avail_players[pos][:n],
+                                        sim.Avail_players[pos][n+1:]...)
         break
       }
     }
   }
-  return allindexes
+
+  return p
 }
 
 // ScoreSeason compares each team to each other team. For each stat, the team
@@ -165,7 +182,7 @@ func (sim *Simulation) ScoreSeason() {
 func (sim *Simulation) EndSeason() {
   for n := range sim.Teams {
     released_players := sim.Teams[n].Release()
-    sim.Avail_players = append(sim.Avail_players, released_players...)
+    sim.AddPlayersToPositionLists(released_players)
 
     sim.Teams[n].wins = 0
   }
