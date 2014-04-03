@@ -1,6 +1,7 @@
 package fbtron
 
 import (
+  "fmt"
   "testing"
 )
 
@@ -8,7 +9,7 @@ func FakeSimulation() Simulation {
   var sim Simulation
 
   // Fake init players
-  sim.Avail_players = BuildPlayersFromCsv("testdata/players_csv_ok.csv", "X")
+  sim.Avail_players = BuildPlayersFromCsv("testdata/players_csv_ok.csv", "")
 
   // Init teams
   *num_teams = 2
@@ -117,9 +118,28 @@ func TestAllAvailablePlayersIndexes(t *testing.T) {
 }
 
 func TestScoreSeason(t *testing.T) {
-  // sim := FakeSimulation()
+  sim := FakeSimulation()
+  fmt.Println(sim.Teams[0].roster)
 
-  // TODO
+  var p *Player
+  p = new(Player)
+  p.positions = []string {"SP"}
+  p.SetStat("R", 1.0)
+  sim.Teams[0].AddPlayer(p, false)
+  p = new(Player)
+  p.positions = []string {"SP"}
+  p.SetStat("R", 2.0)
+  sim.Teams[1].AddPlayer(p, false)
+  fmt.Println(sim.Teams[0].roster)
+
+  sim.ScoreSeason()
+
+  if v:= sim.Teams[0].wins; v != 0 {
+    t.Errorf("ScoreSeason: Expected team 0 wins == 0, got %d", v)
+  }
+  if v:= sim.Teams[1].wins; v != 1 {
+    t.Errorf("ScoreSeason: Expected team 1 wins == 1, got %d", v)
+  }
 }
 
 func TestEndSeason(t *testing.T) {

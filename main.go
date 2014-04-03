@@ -10,7 +10,6 @@ import (
 
 func main() {
   fmt.Println("Starting")
-  start_time := time.Now()
 
   // Tell Go to use all of the processors
   num_cpus := runtime.NumCPU()
@@ -28,21 +27,24 @@ func main() {
 
   // TEMP
   for {
-    time.Sleep(time.Second * 1)
+    time.Sleep(time.Second * 3)
 
     for n := range sendchannels {
       sendchannels[n] <- "ping"
-      response := <-recvchannels[n]
-      fmt.Printf("Got response from simulation thread %d: ran %d seasons\n",
-                  n, response.Num_seasons)
-    }
+      sim := <-recvchannels[n]
 
-    if time.Since(start_time) > time.Second * 10 {
-      fmt.Println("Shutting down all threads")
-      for n := range sendchannels {
-        sendchannels[n] <- "quitquitquit"
+      var bestplayer *fbtron.Player
+      var bestwpd float64
+
+      for p := range sim.Avail_players {
+        if bestplayer == nil || sim.Avail_players[p].WinsPerDraft() > bestwpd {
+          bestplayer = sim.Avail_players[p]
+          bestwpd = bestplayer.WinsPerDraft()
+        }
       }
-      break
+
+      fmt.Printf("t%d: ran %d seasons, best player is %s (%.1f)\n",
+                  n, sim.Num_seasons, bestplayer.GetName(), bestwpd)
     }
   }
 }

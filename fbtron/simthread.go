@@ -143,8 +143,21 @@ func (sim *Simulation) AllAvailablePlayersIndexes(position string) []int {
   return allindexes
 }
 
+// ScoreSeason compares each team to each other team. For each stat, the team
+// with the greater value is awarded a win (ties are ignored).
 func (sim *Simulation) ScoreSeason() {
-  // TODO: Compare all pairs of teams and award wins
+  for a := range sim.Teams {
+    for b := 0; b < a; b++ {
+      for stat := range stat_types {
+        diff := sim.Teams[a].GetStat(stat) - sim.Teams[b].GetStat(stat)
+        if diff > 0 {
+          sim.Teams[a].wins++
+        } else if diff < 0 {
+          sim.Teams[b].wins++
+        }
+      }
+    }
+  }
 }
 
 // EndSeason releases all non-keeper players (which implicitly credits them with
@@ -153,5 +166,7 @@ func (sim *Simulation) EndSeason() {
   for n := range sim.Teams {
     released_players := sim.Teams[n].Release()
     sim.Avail_players = append(sim.Avail_players, released_players...)
+
+    sim.Teams[n].wins = 0
   }
 }
