@@ -71,7 +71,13 @@ func TestDoDraft(t *testing.T) {
                n, sim.Avail_players)
     }
   }
+}
 
+func BenchmarkDoDraft(b *testing.B) {
+  for i := 0; i < b.N; i++ {
+    sim := FakeSimulation()
+    sim.DoDraft()
+  }
 }
 
 func TestRandomAvailablePlayerIndex(t *testing.T) {
