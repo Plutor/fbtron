@@ -148,8 +148,9 @@ func TestGetTeamStat(t *testing.T) {
   team.roster["Fake"][1].player.SetStat("IP", 10)
   team.roster["Fake"][2].player.SetStat("ERA", 5.00)
   team.roster["Fake"][2].player.SetStat("IP", 20)
-  if v := team.GetStat("ERA"); v != 3.50 {
-    t.Errorf("Error with ip-weighted stat, expected 3.50, got %f", v)
+  if v := team.GetStat("ERA"); v != -3.50 {
+    t.Errorf("Error with descending ip-weighted stat, expected -3.50, got %f",
+             v)
   }
 
   // Test an unknown stat

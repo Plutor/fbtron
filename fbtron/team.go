@@ -86,18 +86,19 @@ func (team *Team) CreditRosterWithWins() {
 }
 
 // GetStat gets the team-wide value for a stat, either summed or ip/ab-weighted,
-// depending on the stat.
+// depending on the stat. Returns a negative value for stats that are sorted
+// descending.
 func (team *Team) GetStat(statname string) float64 {
-  switch GetStatType(statname) {
-  case STAT_SUMMED:
-    sum := 0.0
+  rv := 0.0
+  st := GetStatType(statname)
+  switch {
+  case st & STAT_SUMMED != 0:
     for _, members := range team.roster {
       for n := range members {
-        sum += members[n].player.GetStat(statname)
+        rv += members[n].player.GetStat(statname)
       }
     }
-    return sum
-  case STAT_AB_WEIGHTED_AVG:
+  case st & STAT_AB_WEIGHTED_AVG != 0:
     avg := 0.0
     ab := 0.0
     for _, members := range team.roster {
@@ -107,8 +108,8 @@ func (team *Team) GetStat(statname string) float64 {
         ab += p.GetStat("AB")
       }
     }
-    return avg / ab
-  case STAT_IP_WEIGHTED_AVG:
+    rv = avg / ab
+  case st & STAT_IP_WEIGHTED_AVG != 0:
     avg := 0.0
     ip := 0.0
     for _, members := range team.roster {
@@ -118,8 +119,11 @@ func (team *Team) GetStat(statname string) float64 {
         ip += p.GetStat("IP")
       }
     }
-    return avg / ip
+    rv = avg / ip
   }
 
-  return 0.0
+  if st & STAT_DESC != 0 {
+    return -rv
+  }
+  return rv
 }
