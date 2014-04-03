@@ -56,14 +56,64 @@ func TestInitTeams(t *testing.T) {
       t.Errorf("InitTeams: expected non-blank empty position, got '%s'", v)
     }
   }
-
-  // TODO
 }
 
 func TestDoDraft(t *testing.T) {
-  // sim := FakeSimulation()
+  sim := FakeSimulation()
 
-  // TODO
+  sim.DoDraft()
+  for n := range sim.Teams {
+    if v := sim.Teams[n].GetOpenPosition(); v != "" {
+      t.Errorf("DoDraft: team %d expected blank empty position, got '%s'", n, v)
+    }
+    if len(sim.Avail_players) != 1 {
+      t.Errorf("DoDraft: team %d expected 1 available player, got\n%s",
+               n, sim.Avail_players)
+    }
+  }
+
+}
+
+func TestRandomAvailablePlayerIndex(t *testing.T) {
+  sim := FakeSimulation()
+
+  // Remove players one by one, requesting a random player index, and making
+  // sure it always falls in the range of 0<n<len(players)
+  for ; len(sim.Avail_players) > 0;
+      sim.Avail_players = sim.Avail_players[:len(sim.Avail_players)-1] {
+    valid_pos := sim.Avail_players[0].positions[0]
+    if v := sim.RandomAvailablePlayerIndex(valid_pos);
+        v < 0 || v >= len(sim.Avail_players) {
+      t.Errorf("RandomAvailablePlayerIndex: expected 0<index<%d, got %d",
+               len(sim.Avail_players), v)
+    }
+  }
+}
+
+func TestAllAvailablePlayersIndexes(t *testing.T) {
+  sim := FakeSimulation()
+
+  if v := sim.AllAvailablePlayersIndexes("1B"); len(v) != 2 {
+    t.Errorf("AllAvailablePlayersIndexes: expected len() == 2, got %d", v)
+  } else {
+    for n := range v {
+      if v[n] < 0 || v[n] >= len(sim.Avail_players) {
+        t.Errorf("AllAvailablePlayersIndexes: expected 0<index<%d, got %d",
+                 len(sim.Avail_players), v[n])
+      }
+    }
+  }
+
+  if v := sim.AllAvailablePlayersIndexes("SP"); len(v) != 3 {
+    t.Errorf("AllAvailablePlayersIndexes: expected len() == 3, got %d", v)
+  } else {
+    for n := range v {
+      if v[n] < 0 || v[n] >= len(sim.Avail_players) {
+        t.Errorf("AllAvailablePlayersIndexes: expected 0<index<%d, got %d",
+                 len(sim.Avail_players), v[n])
+      }
+    }
+  }
 }
 
 func TestScoreSeason(t *testing.T) {
@@ -73,7 +123,21 @@ func TestScoreSeason(t *testing.T) {
 }
 
 func TestEndSeason(t *testing.T) {
-  // sim := FakeSimulation()
+  sim := FakeSimulation()
 
-  // TODO
+  num_players := len(sim.Avail_players)
+  sim.DoDraft()
+
+  if v := len(sim.Avail_players); v >= num_players {
+    t.Errorf("EndSeason: expected numplayers decreased, got %d >= %d",
+             v, num_players)
+  }
+
+  sim.EndSeason()
+  if v := len(sim.Avail_players); v != num_players {
+    t.Errorf("EndSeason: expected numplayers unchanged, got %d != %d",
+             v, num_players)
+  }
+
+  // TODO: Also add wins and make sure the players all got the wins applied.
 }

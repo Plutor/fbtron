@@ -3,6 +3,7 @@ package fbtron
 import (
   "flag"
   "fmt"
+  "math/rand"
   "runtime"
 )
 
@@ -92,7 +93,54 @@ func (sim *Simulation) RunSeason() {
 }
 
 func (sim *Simulation) DoDraft() {
-  // TODO: Perform the draft
+  for n := range sim.Teams {
+    team := sim.Teams[n]
+    for {
+      pos := team.GetOpenPosition()
+      if pos == "" {
+        break
+      }
+
+      // Choose a random available player
+      pindex := sim.RandomAvailablePlayerIndex(pos)
+      if pindex < 0 {
+        // None available! BIG PROBLEM!
+        // TODO: What do we do?
+        break
+      }
+
+      // Add to the team, remove from available
+      team.AddPlayer(sim.Avail_players[pindex], false)
+      sim.Avail_players = append(sim.Avail_players[:pindex],
+                                 sim.Avail_players[pindex+1:]...)
+    }
+  }
+}
+
+// RandomAvailablePlayerIndex returns the index of a random available player
+// that plays the given position.
+func (sim *Simulation) RandomAvailablePlayerIndex(position string) int {
+  allindexes := sim.AllAvailablePlayersIndexes(position)
+  if len(allindexes) == 0 {
+    return -1
+  }
+  // TODO: Use weighted randomness, picking better players more often.
+  return allindexes[rand.Intn(len(allindexes))]
+}
+
+// RandomAvailablePlayerIndex returns the indexes of all of the available
+// players that play the given position.
+func (sim *Simulation) AllAvailablePlayersIndexes(position string) []int {
+  allindexes := make([]int, 0, len(sim.Avail_players))
+  for n := range sim.Avail_players {
+    for pos := range sim.Avail_players[n].positions {
+      if sim.Avail_players[n].positions[pos] == position {
+        allindexes = append(allindexes, n)
+        break
+      }
+    }
+  }
+  return allindexes
 }
 
 func (sim *Simulation) ScoreSeason() {
