@@ -1,7 +1,6 @@
 package fbtron
 
 import (
-  "fmt"
   "testing"
 )
 
@@ -119,7 +118,6 @@ func TestAllAvailablePlayersIndexes(t *testing.T) {
 
 func TestScoreSeason(t *testing.T) {
   sim := FakeSimulation()
-  fmt.Println(sim.Teams[0].roster)
 
   var p *Player
   p = new(Player)
@@ -130,7 +128,6 @@ func TestScoreSeason(t *testing.T) {
   p.positions = []string {"SP"}
   p.SetStat("R", 2.0)
   sim.Teams[1].AddPlayer(p, false)
-  fmt.Println(sim.Teams[0].roster)
 
   sim.ScoreSeason()
 
