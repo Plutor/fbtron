@@ -171,3 +171,7 @@ func TestEndSeason(t *testing.T) {
 
   // TODO: Also add wins and make sure the players all got the wins applied.
 }
+
+func TestMerge(t *testing.T) {
+  // TODO
+}

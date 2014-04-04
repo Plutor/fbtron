@@ -191,3 +191,26 @@ func (sim *Simulation) EndSeason() {
     sim.Teams[n].wins = 0
   }
 }
+
+// Merges the Num_seasons and All_players from the passed simulation with this
+// one. This is used for summing all of the simulation threads for reporting
+// purposes.
+func (sim *Simulation) Merge(other *Simulation) {
+  sim.Num_seasons += other.Num_seasons
+
+  if sim.All_players == nil {
+    sim.All_players = make(PlayerSet)
+  }
+  for pid, player := range other.All_players {
+    // TODO - This won't work right for randomized ids. We aren't guaranteed
+    // they will be the same across threads.
+    if sim.All_players[pid] == nil {
+      // Create
+      player_copy := *player
+      sim.All_players[pid] = &player_copy
+    } else {
+      sim.All_players[pid].num_seasons += player.num_seasons
+      sim.All_players[pid].total_wins += player.total_wins
+    }
+  }
+}
