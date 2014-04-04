@@ -34,30 +34,30 @@ func main() {
     go fbtron.RunSimulation(sendchannels[n], recvchannels[n])
   }
 
-  // TODO: Start http thread ...
+  // Start http thread
+  http_recv := make(chan string)
+  http_send := make(chan fbtron.Simulation)
+  go fbtron.RunWebServer(http_send, http_recv)
 
-  // TEMP
   for {
-    var sim_totals fbtron.Simulation
-
-    time.Sleep(time.Second * 3)
-
-    for n := range sendchannels {
-      sendchannels[n] <- "ping"
-      sim := <-recvchannels[n]
-      sim_totals.Merge(&sim)
-    }
-
-    var bestplayer *fbtron.Player
-    var bestwpd float64
-    for _, player := range sim_totals.All_players {
-      if bestplayer == nil || player.WinsPerDraft() > bestwpd {
-        bestplayer = player
-        bestwpd = player.WinsPerDraft()
+    select {
+    case <-http_recv:
+      // Got a message from the http server. Collect stats from the simulation
+      // threads and give the http server the totals.
+      var sim_totals fbtron.Simulation
+      for n := range sendchannels {
+        sendchannels[n] <- "ping"
+        sim := <-recvchannels[n]
+        sim_totals.Merge(&sim)
       }
-    }
+      http_send <- sim_totals
 
-    fmt.Printf("Ran %d seasons, best player is %s (%.1f)\n",
-                sim_totals.Num_seasons, bestplayer.GetName(), bestwpd)
+      // TODO: If the message contains a list of users who were drafted, tell
+      // the simulation threads.
+
+    case <-time.After(3 * time.Second):
+      // Just log something to confirm we're still running
+      fmt.Println("...")
+    }
   }
 }
