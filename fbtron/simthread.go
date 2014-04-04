@@ -7,13 +7,13 @@ import (
   "runtime"
 )
 
-type PlayerSlice []*Player
+type PlayerSet map[string]*Player
 
 type Simulation struct {
   Teams           []Team
   Num_seasons     int
-  Avail_players   map[string]PlayerSlice
-  All_players     PlayerSlice
+  Avail_players   map[string]PlayerSet
+  All_players     PlayerSet
 }
 
 var POSITIONS map[string]int = map[string]int {
@@ -67,27 +67,29 @@ func (sim *Simulation) InitPlayers() {
   sim.AddPlayersToPositionLists(batters)
   sim.AddPlayersToPositionLists(pitchers)
 
-  //sim.All_players = make(PlayerSlice, len(batters) + len(pitchers))
-  sim.All_players = append(batters, pitchers...)
+  sim.All_players = make(PlayerSet)
+  for _, p := range append(batters, pitchers...) {
+    sim.All_players[p.id] = p
+  }
 }
 
-func (sim *Simulation) AddPlayersToPositionLists(players PlayerSlice) {
+func (sim *Simulation) AddPlayersToPositionLists(players []*Player) {
   if sim.Avail_players == nil {
-    sim.Avail_players = make(map[string]PlayerSlice)
+    sim.Avail_players = make(map[string]PlayerSet)
   }
 
   num_players := 0
   num_player_pos := 0
 
-  for n := range players {
+  for _, player := range players {
     num_players++
-    for _, pos := range players[n].positions {
+    for _, pos := range player.positions {
       num_player_pos++
       if sim.Avail_players[pos] == nil {
-        sim.Avail_players[pos] = make(PlayerSlice, 0)
+        sim.Avail_players[pos] = make(PlayerSet, 0)
       }
 
-      sim.Avail_players[pos] = append(sim.Avail_players[pos], players[n])
+      sim.Avail_players[pos][player.id] = player
     }
   }
 }
@@ -144,20 +146,22 @@ func (sim *Simulation) RandomAvailablePlayer(position string) *Player {
   }
 
   // TODO: Use weighted randomness, picking better players more often.
-  p := allplayers[rand.Intn(len(allplayers))]
-
-  // Remove from any position list
-  for _, pos := range p.positions {
-    for n := range sim.Avail_players[pos] {
-      if sim.Avail_players[pos][n] == p {
-        sim.Avail_players[pos] = append(sim.Avail_players[pos][:n],
-                                        sim.Avail_players[pos][n+1:]...)
-        break
-      }
+  var player *Player
+  pindex := rand.Intn(len(allplayers))
+  for _, p := range allplayers {
+    if pindex == 0 {
+      player = p
+      break
     }
+    pindex--
   }
 
-  return p
+  // Remove from any position list
+  for _, pos := range player.positions {
+    delete(sim.Avail_players[pos], player.id)
+  }
+
+  return player
 }
 
 // ScoreSeason compares each team to each other team. For each stat, the team
