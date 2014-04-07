@@ -1,11 +1,91 @@
 <html>
 <head>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script type="text/javascript">
+    function GetData() {
+      // TODO: If the form is partially filled out, don't do anything.
+
+      jQuery.get("/data", ParseAndShowData, "json")
+            .fail(ShowDataFailure)
+    }
+
+    function ParseAndShowData(data, textStatus, jqXHR) {
+      // TODO: Show num_seasons speed sparkgraph
+      $('#teams').html(data['Num_seasons'])
+
+      // Show top players
+      $('#players tr').remove()
+      for (var i=0; i<data['Top_players'].length; i++) {
+        player = data['Top_players'][i]
+        newrow = $('<tr></tr>')
+        newrow.append($('<td></td>').append(i+1) )
+        newrow.append($('<td></td>').append(
+            player['Firstname'] + ' ' + player['Lastname']))
+        if (player['Total_wins'] > 0) {
+          wins_per_season = player['Total_wins'] / player['Num_seasons']
+          newrow.append($('<td></td>').append(wins_per_season.toFixed(2)))
+        } else {
+          newrow.append($('<td>-</td>'))
+        }
+        // TODO: Form for drafting keepers
+        newrow.appendTo('#players')
+      }
+
+      // TODO: Show teams' current keepers
+
+      setTimeout(GetData, 3000)
+    }
+
+    function ShowDataFailure(jqXHR, textStatus, errorThrown) {
+      // TODO: Show failure message
+
+      // TODO: Back off
+      setTimeout(GetData, 3000)
+    }
+
+    $(document).ready(function() {
+      GetData();
+    })
+  </script>
+
+  <style type="text/css">
+    body {
+      margin: 0;
+    }
+    h1 {
+      margin: 0;
+      padding: 10px;
+      background: yellow;
+    }
+
+    #teams {
+      width: 350px;
+      float: left;
+      padding: 10px;
+      background: #ddd;
+    }
+
+    #players {
+      margin: 10px 0 0 380px;
+      border: solid 2px black;
+      border-collapse: collapse;
+    }
+    #players td {
+      border: solid 1px #666;
+      padding: 2px 4px;
+    }
+  </style>
+
   <title>fbtron</title>
 </head>
 <body>
 <h1>fbtron</h1>
 
-{{printf "%s" .Body}}
+<div id="teams">
+</div>
+
+<table id="players">
+</table>
 
 </body>
 </html>
