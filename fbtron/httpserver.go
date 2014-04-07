@@ -26,6 +26,8 @@ func RunWebServer(in <-chan Simulation, out chan<- string) {
 
   http.HandleFunc("/", MainPage)
   http.HandleFunc("/data", GetData)
+  http.Handle("/static/",
+      http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 
   fmt.Printf("Listening on http://localhost:%d\n", *http_port)
   err := http.ListenAndServe(fmt.Sprintf(":%d", *http_port), nil)

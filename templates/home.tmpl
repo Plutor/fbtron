@@ -1,7 +1,11 @@
 <html>
 <head>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="/static/jquery.sparkline.min.js"></script>
   <script type="text/javascript">
+    var recent_velocity = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    var last_num_seasons = 0
+
     function GetData() {
       // TODO: If the form is partially filled out, don't do anything.
 
@@ -10,19 +14,24 @@
     }
 
     function ParseAndShowData(data, textStatus, jqXHR) {
-      // TODO: Show num_seasons speed sparkgraph
-      $('#teams').html(data['Num_seasons'])
+      // Show num_seasons speed sparkline
+      var velocity = data['Num_seasons'] - last_num_seasons
+      last_num_seasons = data['Num_seasons']
+      recent_velocity.push(velocity)
+      recent_velocity.shift()
+      $('#velocity').html(velocity)
+      $('#velocity-sparkline').sparkline(recent_velocity);
 
       // Show top players
       $('#players tr').remove()
       for (var i=0; i<data['Top_players'].length; i++) {
-        player = data['Top_players'][i]
-        newrow = $('<tr></tr>')
+        var player = data['Top_players'][i]
+        var newrow = $('<tr></tr>')
         newrow.append($('<td></td>').append(i+1) )
         newrow.append($('<td></td>').append(
             player['Firstname'] + ' ' + player['Lastname']))
         if (player['Total_wins'] > 0) {
-          wins_per_season = player['Total_wins'] / player['Num_seasons']
+          var wins_per_season = player['Total_wins'] / player['Num_seasons']
           newrow.append($('<td></td>').append(wins_per_season.toFixed(2)))
         } else {
           newrow.append($('<td>-</td>'))
@@ -58,7 +67,7 @@
       background: yellow;
     }
 
-    #teams {
+    #sidebar {
       width: 350px;
       float: left;
       padding: 10px;
@@ -81,7 +90,12 @@
 <body>
 <h1>fbtron</h1>
 
-<div id="teams">
+<div id="sidebar">
+  Velocity: <span id="velocity-sparkline"></span>
+    <b><span id="velocity"></span> seasons/sec</b>
+
+  <div id="teams">
+  </div>
 </div>
 
 <table id="players">
