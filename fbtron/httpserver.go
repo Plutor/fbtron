@@ -8,9 +8,16 @@ import (
   "net/http"
 )
 
+type JsonData struct {
+  Num_seasons   int
+  Top_players   PlayerSlice
+  Teams         []Team
+}
+
+var http_port = flag.Int("http_port", 8888, "Port to start http server on")
+
 var inchan <-chan Simulation
 var outchan chan<- string
-var http_port = flag.Int("http_port", 8888, "Port to start http server on")
 
 // RunWebServer starts a UI interface thread.
 func RunWebServer(in <-chan Simulation, out chan<- string) {
@@ -39,18 +46,11 @@ func GetData(w http.ResponseWriter, req *http.Request) {
   outchan <- "ping"
   sim_totals := <-inchan
 
-  var bestplayer *Player
-  var bestwpd float64
-  for _, player := range sim_totals.All_players {
-    if bestplayer == nil || player.WinsPerDraft() > bestwpd {
-      bestplayer = player
-      bestwpd = player.WinsPerDraft()
-    }
-  }
-
-  // TODO: Make some sort of flatter struct for encoding.
   enc := json.NewEncoder(w)
-  if err := enc.Encode(&sim_totals); err != nil {
+  if err := enc.Encode(&JsonData {
+                           Num_seasons: sim_totals.Num_seasons,
+                           Top_players: sim_totals.TopPlayers(100),
+                       }); err != nil {
     fmt.Println(err)
   }
 }

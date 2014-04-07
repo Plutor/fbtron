@@ -5,8 +5,10 @@ import (
   "fmt"
   "math/rand"
   "runtime"
+  "sort"
 )
 
+type PlayerSlice []*Player
 type PlayerSet map[string]*Player
 
 type Simulation struct {
@@ -209,8 +211,32 @@ func (sim *Simulation) Merge(other *Simulation) {
       player_copy := *player
       sim.All_players[pid] = &player_copy
     } else {
-      sim.All_players[pid].num_seasons += player.num_seasons
-      sim.All_players[pid].total_wins += player.total_wins
+      sim.All_players[pid].Num_seasons += player.Num_seasons
+      sim.All_players[pid].Total_wins += player.Total_wins
     }
   }
+}
+
+// Len(), Less(), and Swap() make PlayerSlice sort()able by WinsPerDraft()
+func (ps PlayerSlice) Len() int {
+  return len(ps)
+}
+func (ps PlayerSlice) Less(i, j int) bool {
+  return ps[i].WinsPerDraft() > ps[j].WinsPerDraft()
+}
+func (ps PlayerSlice) Swap(i, j int) {
+  ps[i], ps[j] = ps[j], ps[i]
+}
+
+func (sim *Simulation) TopPlayers(num int) PlayerSlice {
+  rv := make(PlayerSlice, 0, len(sim.All_players))
+  for _, player := range sim.All_players {
+    rv = append(rv, player)
+  }
+  sort.Sort(rv)
+
+  if num <= 0 {
+    return rv
+  }
+  return rv[:num]
 }

@@ -79,8 +79,8 @@ func (team *Team) Release() []*Player {
 func (team *Team) CreditRosterWithWins() {
   for _, members := range team.roster {
     for n := range members {
-      members[n].player.total_wins += team.wins
-      members[n].player.num_seasons++
+      members[n].player.Total_wins += team.wins
+      members[n].player.Num_seasons++
     }
   }
 }

@@ -11,12 +11,12 @@ import (
 
 type Player struct {
   id              string
-  firstname       string
-  lastname        string
+  Firstname       string
+  Lastname        string
   positions       []string
   stats           map[string]float64
-  num_seasons     int
-  total_wins      int
+  Num_seasons     int
+  Total_wins      int
 }
 
 func (p *Player) SetStat(name string, value float64) {
@@ -31,22 +31,22 @@ func (p *Player) GetStat(name string) float64 {
 }
 
 func (p *Player) GetName() string {
-  if p.lastname == "" {
-    return p.firstname
+  if p.Lastname == "" {
+    return p.Firstname
   }
-  return fmt.Sprintf("%s %s", p.firstname, p.lastname)
+  return fmt.Sprintf("%s %s", p.Firstname, p.Lastname)
 }
 
 func (p *Player) WinsPerDraft() float64 {
-  if p.total_wins == 0 {
+  if p.Total_wins == 0 {
     return 0.0
   }
-  return float64(p.total_wins) / float64(p.num_seasons)
+  return float64(p.Total_wins) / float64(p.Num_seasons)
 }
 
 func (p *Player) ResetWins() {
-  p.total_wins = 0
-  p.num_seasons = 0
+  p.Total_wins = 0
+  p.Num_seasons = 0
 }
 
 // BuildPlayersFromCsv reads a CSV file and returns an array of player objects,
@@ -108,9 +108,9 @@ func BuildPlayerFromCsvRecord(
     case "steamerid":
       p.id = record[n]
     case "firstname":
-      p.firstname = record[n]
+      p.Firstname = record[n]
     case "lastname":
-      p.lastname = record[n]
+      p.Lastname = record[n]
     case "position":
       p.positions = []string { record[n] }
     default:

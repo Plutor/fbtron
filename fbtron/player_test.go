@@ -14,12 +14,12 @@ func TestSetStat(t *testing.T) {
 
 func TestWinsPerDraft(t *testing.T) {
   p := new(Player)
-  p.num_seasons = 10
+  p.Num_seasons = 10
   if v := p.WinsPerDraft(); v != 0.0 {
     t.Errorf("Failure to get WinsPerDraft: expected 0.0, got %f", v)
   }
 
-  p.total_wins = 15
+  p.Total_wins = 15
   if v := p.WinsPerDraft(); v != 1.5 {
     t.Errorf("Failure to get WinsPerDraft: expected 1.5, got %f", v)
   }
@@ -84,7 +84,7 @@ func TestBuildPlayerFromCsvRecord(t *testing.T) {
 
   // Pass header array but empty data, expect nil
   player = BuildPlayerFromCsvRecord(
-      []string {"firstname", "lastname", "R", "RBI"},
+      []string {"Firstname", "Lastname", "R", "RBI"},
       []string {},
       "")
   if (player != nil) {
@@ -104,7 +104,7 @@ func TestBuildPlayerFromCsvRecord(t *testing.T) {
 
   // Pass data and header, expect Player
   player = BuildPlayerFromCsvRecord(
-      []string {"firstname", "lastname", "R", "RBI"},
+      []string {"Firstname", "Lastname", "R", "RBI"},
       []string {"Foo", "Bar", "100", "200"},
       "SP")
   if (player == nil) {

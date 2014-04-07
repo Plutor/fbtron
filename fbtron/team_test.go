@@ -19,7 +19,7 @@ func FakeTeam() *Team {
 
   for n := 0; n < 6; n++ {
     player := new(Player)
-    player.firstname = strconv.Itoa(n)
+    player.Firstname = strconv.Itoa(n)
     player.positions = []string { "Fake" }
     team.AddPlayer(player, n % 3 == 0)
   }
@@ -36,8 +36,8 @@ func TestGetOpenPosition(t *testing.T) {
   }
 
   player := Player {
-      firstname: "Openposition",
-      lastname: "Filler",
+      Firstname: "Openposition",
+      Lastname: "Filler",
       positions: []string { v1 },
   }
   team.AddPlayer(&player, false)
@@ -68,8 +68,8 @@ func TestTeamAddPlayer(t *testing.T) {
   }
 
   player := Player {
-      firstname: "Openposition",
-      lastname: "Filler",
+      Firstname: "Openposition",
+      Lastname: "Filler",
       positions: []string { "1B", "SP" },
   }
   team.AddPlayer(&player, false)
@@ -78,8 +78,8 @@ func TestTeamAddPlayer(t *testing.T) {
   }
 
   player = Player {
-      firstname: "Openposition",
-      lastname: "Filler, Jr.",
+      Firstname: "Openposition",
+      Lastname: "Filler, Jr.",
       positions: []string { "1B", "SP" },
   }
   team.AddPlayer(&player, false)
@@ -107,12 +107,12 @@ func TestCreditRosterWithWins(t *testing.T) {
   team.CreditRosterWithWins()
 
   for n := range team.roster["Fake"] {
-    if v := team.roster["Fake"][n].player.total_wins; v != team.wins {
+    if v := team.roster["Fake"][n].player.Total_wins; v != team.wins {
       t.Errorf("Error crediting roster: team has %d wins, player '%s' has %d",
                team.wins, team.roster["Fake"][n].player.GetName(), v)
     }
-    if v := team.roster["Fake"][n].player.num_seasons; v != 1 {
-      t.Errorf("Error crediting roster: expected num_seasons=1, " +
+    if v := team.roster["Fake"][n].player.Num_seasons; v != 1 {
+      t.Errorf("Error crediting roster: expected Num_seasons=1, " +
                "player '%s' has %d",
                team.roster["Fake"][n].player.GetName(), v)
     }
