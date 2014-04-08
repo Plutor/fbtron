@@ -15,7 +15,7 @@
       ShowVelocity(data['Num_seasons'])
 
       // Show top players
-      ShowTopPlayers(data['Top_players'])
+      ShowTopPlayers(data['Top_players'], data['Teams'])
 
       // Show teams and keepers
       ShowTeams(data['Teams'])
@@ -34,7 +34,7 @@
       $('#velocity-sparkline').sparkline(recent_velocity);
     }
 
-    function ShowTopPlayers(top_players) {
+    function ShowTopPlayers(top_players, teams) {
       $('#players tr').remove()
       for (var i = 0; i < top_players.length; i++) {
         var player = top_players[i]
@@ -48,7 +48,14 @@
         } else {
           newrow.append($('<td>-</td>'))
         }
-        // TODO: Form for drafting keepers
+
+        // TODO: Finish form for drafting keepers
+        for (var t = 0; t < teams.length; t++) {
+          var radio = $('<input type="radio"/>').attr('name', player['ID'])
+                                                .val(t)
+          newrow.append($('<td></td>').append(radio))
+        }
+
         newrow.appendTo('#players')
       }
     }

@@ -71,7 +71,7 @@ func (sim *Simulation) InitPlayers() {
 
   sim.All_players = make(PlayerSet)
   for _, p := range append(batters, pitchers...) {
-    sim.All_players[p.id] = p
+    sim.All_players[p.ID] = p
   }
 }
 
@@ -91,7 +91,7 @@ func (sim *Simulation) AddPlayersToPositionLists(players []*Player) {
         sim.Avail_players[pos] = make(PlayerSet, 0)
       }
 
-      sim.Avail_players[pos][player.id] = player
+      sim.Avail_players[pos][player.ID] = player
     }
   }
 }
@@ -160,7 +160,7 @@ func (sim *Simulation) RandomAvailablePlayer(position string) *Player {
 
   // Remove from any position list
   for _, pos := range player.positions {
-    delete(sim.Avail_players[pos], player.id)
+    delete(sim.Avail_players[pos], player.ID)
   }
 
   return player

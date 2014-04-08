@@ -10,7 +10,7 @@ import (
 )
 
 type Player struct {
-  id              string
+  ID              string
   Firstname       string
   Lastname        string
   positions       []string
@@ -106,7 +106,7 @@ func BuildPlayerFromCsvRecord(
   for n := 0; n < columns; n ++ {
     switch header[n] {
     case "steamerid":
-      p.id = record[n]
+      p.ID = record[n]
     case "firstname":
       p.Firstname = record[n]
     case "lastname":
@@ -135,8 +135,8 @@ func BuildPlayerFromCsvRecord(
 
   // If the player doesn't have an id, generate one randomly (there is no
   // guarantee these won't collide, but chances are 1/2^64).
-  if p.id == "" {
-    p.id = fmt.Sprintf("%x", rand.Int63())
+  if p.ID == "" {
+    p.ID = fmt.Sprintf("%x", rand.Int63())
   }
 
   return p
