@@ -104,6 +104,8 @@ func BuildPlayerFromCsvRecord(
 
   p := new(Player)
   for n := 0; n < columns; n ++ {
+    val, err := strconv.ParseFloat(record[n], 64)
+
     switch header[n] {
     case "steamerid":
       p.ID = record[n]
@@ -113,11 +115,30 @@ func BuildPlayerFromCsvRecord(
       p.Lastname = record[n]
     case "position":
       p.positions = []string { record[n] }
+    case "start_percent":
+      // TODO: I don't like having to do this, but since the 2013 steamer files
+      // don't have eligible positions, we've gotta fake it. The overlap is so
+      // that some players qualify as both SP and RP.
+      p.positions = []string { }
+      if val >= 0.25 {
+        p.positions = append(p.positions, "SP")
+      }
+      if val <= 0.75 {
+        p.positions = append(p.positions, "RP")
+      }
+    case "IP":
+      if err == nil {
+        p.SetStat("P_IP", val)
+      }
+    case "AB":
+      if err == nil {
+        p.SetStat("B_AB", val)
+      }
     default:
-      if GetStatType(header[n]) != -1 {
-        val, err := strconv.ParseFloat(record[n], 64)
+      stat_name, stat_type := GetStatNameAndType(default_position, header[n])
+      if stat_type != -1 {
         if err == nil {
-          p.SetStat(header[n], val)
+          p.SetStat(stat_name, val)
         }
       }
     }

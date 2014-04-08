@@ -19,16 +19,16 @@ type Simulation struct {
 }
 
 var POSITIONS map[string]int = map[string]int {
-  "C":    1,
-  "1B":   1,
-  "2B":   1,
-  "SS":   1,
-  "3B":   1,
-  "OF":   4,
-  "Util": 2,
-  "SP":   2,
-  "RP":   2,
-  "P":    4,
+  "C":  1,
+  "1B": 1,
+  "2B": 1,
+  "SS": 1,
+  "3B": 1,
+  "OF": 4,
+  "B":  2,  // Generic batter, usually "Util" in Yahoo FBB.
+  "SP": 2,
+  "RP": 2,
+  "P":  4,
 }
 
 var num_teams = flag.Int("teams", 10, "Number of teams")
@@ -64,7 +64,7 @@ func RunSimulation(inchan <-chan string, outchan chan<- Simulation) {
 
 // InitPlayers loads a set of players from the CSV files in the data directory.
 func (sim *Simulation) InitPlayers() {
-  batters := BuildPlayersFromCsv("data/steamer_hitters_2014_update.csv", "Util")
+  batters := BuildPlayersFromCsv("data/steamer_hitters_2014_update.csv", "B")
   pitchers := BuildPlayersFromCsv("data/steamer_pitchers_2014_update.csv", "P")
   sim.AddPlayersToPositionLists(batters)
   sim.AddPlayersToPositionLists(pitchers)

@@ -15,7 +15,7 @@ func FakeSimulation() Simulation {
   *num_teams = 2
   sim.InitTeams(map[string]int {
     "1B": 1,
-    "SP": 1,
+    "2B": 1,
   })
 
   return sim
@@ -43,11 +43,11 @@ func TestInitPlayers(t *testing.T) {
   if v := len(sim.Avail_players); v <= 0 {
     t.Errorf("InitPlayers: expected to load >0 positions, got %d", v)
   }
-  if v := len(sim.Avail_players["SP"]); v <= 0 {
-    t.Errorf("InitPlayers: expected to load >0 SP, got %d", v)
+  if v := len(sim.Avail_players["2B"]); v != 3 {
+    t.Errorf("InitPlayers: expected to load 3 2B, got %d", v)
   }
-  if v := len(sim.Avail_players["1B"]); v <= 0 {
-    t.Errorf("InitPlayers: expected to load >0 1B, got %d", v)
+  if v := len(sim.Avail_players["1B"]); v != 2 {
+    t.Errorf("InitPlayers: expected to load 2 1B, got %d", v)
   }
 }
 
@@ -99,8 +99,8 @@ func TestAddPlayersToPositionLists(t *testing.T) {
     t.Errorf("AddPlayersToPositionLists: expected 2 position indexes, got %d",
              v)
   }
-  if v := len(sim.Avail_players["SP"]); v != 3 {
-    t.Errorf("AddPlayersToPositionLists: expected 3 SP, got %d", v)
+  if v := len(sim.Avail_players["2B"]); v != 3 {
+    t.Errorf("AddPlayersToPositionLists: expected 3 2B, got %d", v)
   }
   if v := len(sim.Avail_players["1B"]); v != 2 {
     t.Errorf("AddPlayersToPositionLists: expected 2 1B, got %d", v)
@@ -113,7 +113,7 @@ func TestRandomAvailablePlayer(t *testing.T) {
 
   // Remove players one by one, requesting a random player index, and making
   // sure it always falls in the range of 0<n<len(players)
-  for _, pos := range []string{"SP", "1B"} {
+  for _, pos := range []string{"2B", "1B"} {
     for len(sim.Avail_players[pos]) > 0 {
       if v := sim.RandomAvailablePlayer(pos); v == nil {
         t.Errorf("RandomAvailablePlayer: expected a Player for %s, got %s",
@@ -128,12 +128,12 @@ func TestScoreSeason(t *testing.T) {
 
   var p *Player
   p = new(Player)
-  p.positions = []string {"SP"}
-  p.SetStat("R", 1.0)
+  p.positions = []string {"2B"}
+  p.SetStat("B_R", 1.0)
   sim.Teams[0].AddPlayer(p, false)
   p = new(Player)
-  p.positions = []string {"SP"}
-  p.SetStat("R", 2.0)
+  p.positions = []string {"2B"}
+  p.SetStat("B_R", 2.0)
   sim.Teams[1].AddPlayer(p, false)
 
   sim.ScoreSeason()

@@ -52,7 +52,7 @@ func TestBuildPlayersFromCsv(t *testing.T) {
   }
 
   // Pass csv with a header and a record, expect one-player array back
-  players = BuildPlayersFromCsv("testdata/players_csv_ok.csv", "SP")
+  players = BuildPlayersFromCsv("testdata/players_csv_ok.csv", "B")
   if len(players) != 5 {
     t.Errorf("BuildPlayersFromCsv: expected 5 players, got %d:\n%s",
              len(players), players)
@@ -60,14 +60,14 @@ func TestBuildPlayersFromCsv(t *testing.T) {
     if v := players[0].GetName(); v != "Foo Bar" {
       t.Errorf("BuildPlayerFromCsvRecord: expected name Foo Bar, got '%s'", v)
     }
-    if v := players[0].GetStat("R"); v != 100 {
+    if v := players[0].GetStat("B_R"); v != 100 {
       t.Errorf("BuildPlayerFromCsv: expected R=100, got %f", v)
     }
-    if v := players[0].GetStat("RBI"); v != 200 {
+    if v := players[0].GetStat("B_RBI"); v != 200 {
       t.Errorf("BuildPlayerFromCsv: expected RBI=200, got %f", v)
     }
-    if v := players[0].positions; len(v) != 1 || v[0] != "SP" {
-      t.Errorf("BuildPlayerFromCsv: expected position SP, got %s", v)
+    if v := players[0].positions; len(v) != 2 || v[0] != "2B" || v[1] != "B" {
+      t.Errorf("BuildPlayerFromCsv: expected position 2B,B, got %s", v)
     }
   }
 }
@@ -106,21 +106,21 @@ func TestBuildPlayerFromCsvRecord(t *testing.T) {
   player = BuildPlayerFromCsvRecord(
       []string {"firstname", "lastname", "R", "RBI"},
       []string {"Foo", "Bar", "100", "200"},
-      "SP")
+      "B")
   if (player == nil) {
     t.Errorf("BuildPlayerFromCsvRecord: expected Player, got nil")
   }
   if v := player.GetName(); v != "Foo Bar" {
     t.Errorf("BuildPlayerFromCsvRecord: expected name Foo Bar, got '%s'", v)
   }
-  if v := player.GetStat("R"); v != 100 {
+  if v := player.GetStat("B_R"); v != 100 {
     t.Errorf("BuildPlayerFromCsvRecord: expected R=100, got %f", v)
   }
-  if v := player.GetStat("RBI"); v != 200 {
+  if v := player.GetStat("B_RBI"); v != 200 {
     t.Errorf("BuildPlayerFromCsvRecord: expected RBI=200, got %f", v)
   }
-  if v := player.positions; len(v) != 1 || v[0] != "SP" {
-    t.Errorf("BuildPlayerFromCsvRecord: expected position SP, got %s", v)
+  if v := player.positions; len(v) != 1 || v[0] != "B" {
+    t.Errorf("BuildPlayerFromCsvRecord: expected position B, got %s", v)
   }
 
   // TODO: Player with same position as default

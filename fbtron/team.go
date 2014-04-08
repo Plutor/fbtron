@@ -104,8 +104,8 @@ func (team *Team) GetStat(statname string) float64 {
     for _, members := range team.Roster {
       for n := range members {
         p := members[n].Player
-        avg += p.GetStat(statname) * p.GetStat("AB")
-        ab += p.GetStat("AB")
+        avg += p.GetStat(statname) * p.GetStat("B_AB")
+        ab += p.GetStat("B_AB")
       }
     }
     rv = avg / ab
@@ -115,8 +115,8 @@ func (team *Team) GetStat(statname string) float64 {
     for _, members := range team.Roster {
       for n := range members {
         p := members[n].Player
-        avg += p.GetStat(statname) * p.GetStat("IP")
-        ip += p.GetStat("IP")
+        avg += p.GetStat(statname) * p.GetStat("P_IP")
+        ip += p.GetStat("P_IP")
       }
     }
     rv = avg / ip

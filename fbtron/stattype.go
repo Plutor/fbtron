@@ -1,5 +1,7 @@
 package fbtron
 
+import "fmt"
+
 const (
   STAT_SUMMED          = 1 << iota
   STAT_IP_WEIGHTED_AVG = 1 << iota
@@ -10,21 +12,27 @@ const (
 )
 
 var stat_types = map[string]int {
-  "R":    STAT_SUMMED | STAT_ASC,
-  "HR":   STAT_SUMMED | STAT_ASC,
-  "RBI":  STAT_SUMMED | STAT_ASC,
-  "SB":   STAT_SUMMED | STAT_ASC,
-  "BA":   STAT_AB_WEIGHTED_AVG | STAT_ASC,
+  "B_R":    STAT_SUMMED | STAT_ASC,
+  "B_HR":   STAT_SUMMED | STAT_ASC,
+  "B_RBI":  STAT_SUMMED | STAT_ASC,
+  "B_SB":   STAT_SUMMED | STAT_ASC,
+  "B_BA":   STAT_AB_WEIGHTED_AVG | STAT_ASC,
 
-  "W":    STAT_SUMMED | STAT_ASC,
-  "S":    STAT_SUMMED | STAT_ASC,
-  "K":    STAT_SUMMED | STAT_ASC,
-  "ERA":  STAT_IP_WEIGHTED_AVG | STAT_DESC,
-  "WHIP": STAT_IP_WEIGHTED_AVG | STAT_DESC,
+  "P_W":    STAT_SUMMED | STAT_ASC,
+  "P_SV":   STAT_SUMMED | STAT_ASC,
+  "P_K":    STAT_SUMMED | STAT_ASC,
+  "P_ERA":  STAT_IP_WEIGHTED_AVG | STAT_DESC,
+  "P_WHIP": STAT_IP_WEIGHTED_AVG | STAT_DESC,
 }
 
 // TODO: Should we return a closure instead?
-func GetStatType(name string) int {
+func GetStatNameAndType(pos, name string) (string, int) {
+  fullname := fmt.Sprintf("%s_%s", pos, name)
+
+  return fullname, GetStatType(fullname)
+}
+
+func GetStatType(name string) (int) {
   t, ok := stat_types[name]
   if ok {
     return t

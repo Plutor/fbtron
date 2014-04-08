@@ -123,32 +123,32 @@ func TestGetTeamStat(t *testing.T) {
   team := FakeTeam()
 
   // Test a summed stat
-  team.Roster["Fake"][0].Player.SetStat("R", 1)
-  team.Roster["Fake"][1].Player.SetStat("R", 1)
-  team.Roster["Fake"][2].Player.SetStat("R", 40)
-  if v := team.GetStat("R"); v != 42 {
+  team.Roster["Fake"][0].Player.SetStat("B_R", 1)
+  team.Roster["Fake"][1].Player.SetStat("B_R", 1)
+  team.Roster["Fake"][2].Player.SetStat("B_R", 40)
+  if v := team.GetStat("B_R"); v != 42 {
     t.Errorf("Error with summed stat, expected 42, got %f", v)
   }
 
   // Test an ab-weighted stat
-  team.Roster["Fake"][0].Player.SetStat("BA", 0.200)
-  team.Roster["Fake"][0].Player.SetStat("AB", 10)
-  team.Roster["Fake"][1].Player.SetStat("BA", 0.200)
-  team.Roster["Fake"][1].Player.SetStat("AB", 10)
-  team.Roster["Fake"][2].Player.SetStat("BA", 0.500)
-  team.Roster["Fake"][2].Player.SetStat("AB", 20)
-  if v := team.GetStat("BA"); v != 0.350 {
+  team.Roster["Fake"][0].Player.SetStat("B_BA", 0.200)
+  team.Roster["Fake"][0].Player.SetStat("B_AB", 10)
+  team.Roster["Fake"][1].Player.SetStat("B_BA", 0.200)
+  team.Roster["Fake"][1].Player.SetStat("B_AB", 10)
+  team.Roster["Fake"][2].Player.SetStat("B_BA", 0.500)
+  team.Roster["Fake"][2].Player.SetStat("B_AB", 20)
+  if v := team.GetStat("B_BA"); v != 0.350 {
     t.Errorf("Error with ab-weighted stat, expected 0.350, got %f", v)
   }
 
   // Test an ip-weighted stat
-  team.Roster["Fake"][0].Player.SetStat("ERA", 2.00)
-  team.Roster["Fake"][0].Player.SetStat("IP", 10)
-  team.Roster["Fake"][1].Player.SetStat("ERA", 2.00)
-  team.Roster["Fake"][1].Player.SetStat("IP", 10)
-  team.Roster["Fake"][2].Player.SetStat("ERA", 5.00)
-  team.Roster["Fake"][2].Player.SetStat("IP", 20)
-  if v := team.GetStat("ERA"); v != -3.50 {
+  team.Roster["Fake"][0].Player.SetStat("P_ERA", 2.00)
+  team.Roster["Fake"][0].Player.SetStat("P_IP", 10)
+  team.Roster["Fake"][1].Player.SetStat("P_ERA", 2.00)
+  team.Roster["Fake"][1].Player.SetStat("P_IP", 10)
+  team.Roster["Fake"][2].Player.SetStat("P_ERA", 5.00)
+  team.Roster["Fake"][2].Player.SetStat("P_IP", 20)
+  if v := team.GetStat("P_ERA"); v != -3.50 {
     t.Errorf("Error with descending ip-weighted stat, expected -3.50, got %f",
              v)
   }
