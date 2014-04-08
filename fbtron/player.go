@@ -7,6 +7,7 @@ import (
   "math/rand"
   "os"
   "strconv"
+  "strings"
 )
 
 type Player struct {
@@ -114,7 +115,7 @@ func BuildPlayerFromCsvRecord(
     case "lastname":
       p.Lastname = record[n]
     case "position":
-      p.Positions = []string { record[n] }
+      p.Positions = []string { strings.ToUpper(record[n]) }
     case "start_percent":
       // TODO: I don't like having to do this, but since the 2013 steamer files
       // don't have eligible positions, we've gotta fake it. The overlap is so
