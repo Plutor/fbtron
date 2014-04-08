@@ -1,27 +1,27 @@
 package fbtron
 
 type TeamMember struct {
-  player    *Player
+  Player    *Player
   keeper    bool
 }
 
 type Team struct {
-  name        string
-  roster      map[string][]TeamMember
+  Name        string
+  Roster      map[string][]TeamMember
   wins        int
 }
 
 func (team *Team) SetPositions(positions map[string]int) {
-  team.roster = make(map[string][]TeamMember)
+  team.Roster = make(map[string][]TeamMember)
   for position, num := range positions {
-    team.roster[position] = make([]TeamMember, 0, num)
+    team.Roster[position] = make([]TeamMember, 0, num)
   }
 }
 
 // Finds a position with an open spot on the roster and returns it. Returns
 // empty string if there are no open positions.
 func (team *Team) GetOpenPosition() string {
-  for position, members := range team.roster {
+  for position, members := range team.Roster {
     if cap(members) > len(members) {
       return position
     }
@@ -36,7 +36,7 @@ func (team *Team) AddPlayer(p *Player, keeper bool) {
   var pos string
   for n := range p.positions {
     thispos := p.positions[n]
-    if len(team.roster[thispos]) < cap(team.roster[thispos]) {
+    if len(team.Roster[thispos]) < cap(team.Roster[thispos]) {
       pos = thispos
     }
   }
@@ -47,8 +47,8 @@ func (team *Team) AddPlayer(p *Player, keeper bool) {
   }
 
   // Grow the array by one and add this player
-  team.roster[pos] = team.roster[pos][:len(team.roster[pos])+1]
-  team.roster[pos][len(team.roster[pos])-1] = TeamMember {p, keeper}
+  team.Roster[pos] = team.Roster[pos][:len(team.Roster[pos])+1]
+  team.Roster[pos][len(team.Roster[pos])-1] = TeamMember {p, keeper}
 }
 
 // Release releases all of the players in the roster that are not marked as
@@ -57,17 +57,17 @@ func (team *Team) Release() []*Player {
   team.CreditRosterWithWins()
 
   released := make([]*Player, 0)
-  for position, members := range team.roster {
+  for position, members := range team.Roster {
     newmembers := make([]TeamMember, 0, len(members))
     for n := range members {
       if members[n].keeper {
         newmembers = newmembers[:len(newmembers)+1]
         newmembers[len(newmembers)-1] = members[n]
       } else {
-        released = append(released, members[n].player)
+        released = append(released, members[n].Player)
       }
     }
-    team.roster[position] = newmembers
+    team.Roster[position] = newmembers
   }
 
   return released
@@ -77,10 +77,10 @@ func (team *Team) Release() []*Player {
 // roster, and also increments the number of seasons. This should only be called
 // once per season, ideally by Release().
 func (team *Team) CreditRosterWithWins() {
-  for _, members := range team.roster {
+  for _, members := range team.Roster {
     for n := range members {
-      members[n].player.Total_wins += team.wins
-      members[n].player.Num_seasons++
+      members[n].Player.Total_wins += team.wins
+      members[n].Player.Num_seasons++
     }
   }
 }
@@ -93,17 +93,17 @@ func (team *Team) GetStat(statname string) float64 {
   st := GetStatType(statname)
   switch {
   case st & STAT_SUMMED != 0:
-    for _, members := range team.roster {
+    for _, members := range team.Roster {
       for n := range members {
-        rv += members[n].player.GetStat(statname)
+        rv += members[n].Player.GetStat(statname)
       }
     }
   case st & STAT_AB_WEIGHTED_AVG != 0:
     avg := 0.0
     ab := 0.0
-    for _, members := range team.roster {
+    for _, members := range team.Roster {
       for n := range members {
-        p := members[n].player
+        p := members[n].Player
         avg += p.GetStat(statname) * p.GetStat("AB")
         ab += p.GetStat("AB")
       }
@@ -112,9 +112,9 @@ func (team *Team) GetStat(statname string) float64 {
   case st & STAT_IP_WEIGHTED_AVG != 0:
     avg := 0.0
     ip := 0.0
-    for _, members := range team.roster {
+    for _, members := range team.Roster {
       for n := range members {
-        p := members[n].player
+        p := members[n].Player
         avg += p.GetStat(statname) * p.GetStat("IP")
         ip += p.GetStat("IP")
       }

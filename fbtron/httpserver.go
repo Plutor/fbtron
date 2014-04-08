@@ -52,6 +52,7 @@ func GetData(w http.ResponseWriter, req *http.Request) {
   if err := enc.Encode(&JsonData {
                            Num_seasons: sim_totals.Num_seasons,
                            Top_players: sim_totals.TopPlayers(100),
+                           Teams:       sim_totals.Teams,
                        }); err != nil {
     fmt.Println(err)
   }

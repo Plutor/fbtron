@@ -3,9 +3,6 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
   <script src="/static/jquery.sparkline.min.js"></script>
   <script type="text/javascript">
-    var recent_velocity = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    var last_num_seasons = 0
-
     function GetData() {
       // TODO: If the form is partially filled out, don't do anything.
 
@@ -15,17 +12,32 @@
 
     function ParseAndShowData(data, textStatus, jqXHR) {
       // Show num_seasons speed sparkline
-      var velocity = data['Num_seasons'] - last_num_seasons
-      last_num_seasons = data['Num_seasons']
+      ShowVelocity(data['Num_seasons'])
+
+      // Show top players
+      ShowTopPlayers(data['Top_players'])
+
+      // Show teams and keepers
+      ShowTeams(data['Teams'])
+
+      setTimeout(GetData, 3000)
+    }
+
+    var recent_velocity = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    var last_num_seasons = 0
+    function ShowVelocity(num_seasons) {
+      var velocity = num_seasons - last_num_seasons
+      last_num_seasons = num_seasons
       recent_velocity.push(velocity)
       recent_velocity.shift()
       $('#velocity').html(velocity)
       $('#velocity-sparkline').sparkline(recent_velocity);
+    }
 
-      // Show top players
+    function ShowTopPlayers(top_players) {
       $('#players tr').remove()
-      for (var i=0; i<data['Top_players'].length; i++) {
-        var player = data['Top_players'][i]
+      for (var i = 0; i < top_players.length; i++) {
+        var player = top_players[i]
         var newrow = $('<tr></tr>')
         newrow.append($('<td></td>').append(i+1) )
         newrow.append($('<td></td>').append(
@@ -39,10 +51,33 @@
         // TODO: Form for drafting keepers
         newrow.appendTo('#players')
       }
+    }
 
-      // TODO: Show teams' current keepers
+    function ShowTeams(teams) {
+      $('#teams *').remove()
 
-      setTimeout(GetData, 3000)
+      for (var i = 0; i < teams.length; i++) {
+        var team = teams[i]
+
+        var teamheader = $('<h2></h2>').html(team['Name'])
+        teamheader.appendTo('#teams')
+
+        // Show the keepers on the roster
+        var roster = $('<ul></ul>')
+        for (var pos in team['Roster']) {
+          for (var j = 0; j < team['Roster'][pos].length; j++) {
+            var player = team['Roster'][pos][j]['Player']
+            if (player['Firstname'] != undefined) {
+              roster.append($('<li></li>').html(
+                  player['Firstname'] + ' ' + player['Lastname']))
+            }
+          }
+        }
+        if (roster.html() == "") {
+          roster.append($('<li><i>No roster yet</i></li>'))
+        }
+        roster.appendTo('#teams')
+      }
     }
 
     function ShowDataFailure(jqXHR, textStatus, errorThrown) {
@@ -82,6 +117,13 @@
     #players td {
       border: solid 1px #666;
       padding: 2px 4px;
+    }
+
+    #teams {
+      font-size: 80%;
+    }
+    #teams h2 {
+      font-size: 120%;
     }
   </style>
 

@@ -101,7 +101,7 @@ func (sim *Simulation) InitTeams(positions map[string]int) {
   sim.Teams = make([]Team, *num_teams)
   for n := 0; n < *num_teams; n ++ {
     sim.Teams[n] = Team {
-      name: fmt.Sprintf("Team %d", n),
+      Name: fmt.Sprintf("Team %d", n),
     }
     sim.Teams[n].SetPositions(positions)
   }
@@ -200,6 +200,7 @@ func (sim *Simulation) EndSeason() {
 func (sim *Simulation) Merge(other *Simulation) {
   sim.Num_seasons += other.Num_seasons
 
+  // Merge the player stats
   if sim.All_players == nil {
     sim.All_players = make(PlayerSet)
   }
@@ -214,6 +215,17 @@ func (sim *Simulation) Merge(other *Simulation) {
       sim.All_players[pid].Num_seasons += player.Num_seasons
       sim.All_players[pid].Total_wins += player.Total_wins
     }
+  }
+
+  // Merge the team stats
+  if sim.Teams == nil {
+    sim.Teams = make([]Team, *num_teams)
+    for n, team := range other.Teams {
+      // Create
+      sim.Teams[n] = team
+    }
+  } else {
+    // TODO: Merge the stats (once a team has stats to merge)
   }
 }
 
