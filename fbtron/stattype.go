@@ -16,7 +16,7 @@ var stat_types = map[string]int {
   "B_HR":   STAT_SUMMED | STAT_ASC,
   "B_RBI":  STAT_SUMMED | STAT_ASC,
   "B_SB":   STAT_SUMMED | STAT_ASC,
-  "B_BA":   STAT_AB_WEIGHTED_AVG | STAT_ASC,
+  "B_AVG":  STAT_AB_WEIGHTED_AVG | STAT_ASC,
 
   "P_W":    STAT_SUMMED | STAT_ASC,
   "P_SV":   STAT_SUMMED | STAT_ASC,
