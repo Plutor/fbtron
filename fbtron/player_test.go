@@ -84,7 +84,7 @@ func TestBuildPlayerFromCsvRecord(t *testing.T) {
 
   // Pass header array but empty data, expect nil
   player = BuildPlayerFromCsvRecord(
-      []string {"Firstname", "Lastname", "R", "RBI"},
+      []string {"firstname", "lastname", "R", "RBI"},
       []string {},
       "")
   if (player != nil) {
@@ -104,7 +104,7 @@ func TestBuildPlayerFromCsvRecord(t *testing.T) {
 
   // Pass data and header, expect Player
   player = BuildPlayerFromCsvRecord(
-      []string {"Firstname", "Lastname", "R", "RBI"},
+      []string {"firstname", "lastname", "R", "RBI"},
       []string {"Foo", "Bar", "100", "200"},
       "SP")
   if (player == nil) {
