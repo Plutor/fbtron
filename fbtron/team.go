@@ -2,7 +2,7 @@ package fbtron
 
 type TeamMember struct {
   Player    *Player
-  keeper    bool
+  Keeper    bool
 }
 
 type Team struct {
@@ -60,7 +60,7 @@ func (team *Team) Release() []*Player {
   for position, members := range team.Roster {
     newmembers := make([]TeamMember, 0, len(members))
     for n := range members {
-      if members[n].keeper {
+      if members[n].Keeper {
         newmembers = newmembers[:len(newmembers)+1]
         newmembers[len(newmembers)-1] = members[n]
       } else {

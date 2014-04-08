@@ -67,7 +67,7 @@
         for (var pos in team['Roster']) {
           for (var j = 0; j < team['Roster'][pos].length; j++) {
             var player = team['Roster'][pos][j]['Player']
-            if (player['Firstname'] != undefined) {
+            if (player['Keeper']) {
               roster.append($('<li></li>').html(
                   player['Firstname'] + ' ' + player['Lastname']))
             }
@@ -124,6 +124,11 @@
     }
     #teams h2 {
       font-size: 120%;
+      margin-bottom: 2px;
+    }
+    #teams ul {
+      margin: 0 0 0 10px;
+      padding-left: 10px;
     }
   </style>
 
