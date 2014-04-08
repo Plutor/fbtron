@@ -13,7 +13,7 @@ type Player struct {
   ID              string
   Firstname       string
   Lastname        string
-  positions       []string
+  Positions       []string
   stats           map[string]float64
   Num_seasons     int
   Total_wins      int
@@ -114,17 +114,17 @@ func BuildPlayerFromCsvRecord(
     case "lastname":
       p.Lastname = record[n]
     case "position":
-      p.positions = []string { record[n] }
+      p.Positions = []string { record[n] }
     case "start_percent":
       // TODO: I don't like having to do this, but since the 2013 steamer files
       // don't have eligible positions, we've gotta fake it. The overlap is so
       // that some players qualify as both SP and RP.
-      p.positions = []string { }
+      p.Positions = []string { }
       if val >= 0.25 {
-        p.positions = append(p.positions, "SP")
+        p.Positions = append(p.Positions, "SP")
       }
       if val <= 0.75 {
-        p.positions = append(p.positions, "RP")
+        p.Positions = append(p.Positions, "RP")
       }
     case "IP":
       if err == nil {
@@ -146,12 +146,12 @@ func BuildPlayerFromCsvRecord(
 
   // Add default position if it's non-blank and isn't already a position
   if default_position != "" {
-    for n := range p.positions {
-      if p.positions[n] == default_position {
+    for n := range p.Positions {
+      if p.Positions[n] == default_position {
         return p
       }
     }
-    p.positions = append(p.positions, default_position)
+    p.Positions = append(p.Positions, default_position)
   }
 
   // If the player doesn't have an id, generate one randomly (there is no

@@ -20,7 +20,7 @@ func FakeTeam() *Team {
   for n := 0; n < 6; n++ {
     player := new(Player)
     player.Firstname = strconv.Itoa(n)
-    player.positions = []string { "Fake" }
+    player.Positions = []string { "Fake" }
     team.AddPlayer(player, n % 3 == 0)
   }
 
@@ -38,7 +38,7 @@ func TestGetOpenPosition(t *testing.T) {
   player := Player {
       Firstname: "Openposition",
       Lastname: "Filler",
-      positions: []string { v1 },
+      Positions: []string { v1 },
   }
   team.AddPlayer(&player, false)
 
@@ -70,7 +70,7 @@ func TestTeamAddPlayer(t *testing.T) {
   player := Player {
       Firstname: "Openposition",
       Lastname: "Filler",
-      positions: []string { "1B", "SP" },
+      Positions: []string { "1B", "SP" },
   }
   team.AddPlayer(&player, false)
   if len(team.Roster["1B"]) != 1 && len(team.Roster["SP"]) != 1 {
@@ -80,7 +80,7 @@ func TestTeamAddPlayer(t *testing.T) {
   player = Player {
       Firstname: "Openposition",
       Lastname: "Filler, Jr.",
-      positions: []string { "1B", "SP" },
+      Positions: []string { "1B", "SP" },
   }
   team.AddPlayer(&player, false)
   if len(team.Roster["1B"]) != 1 || len(team.Roster["SP"]) != 1 {

@@ -66,7 +66,7 @@ func TestBuildPlayersFromCsv(t *testing.T) {
     if v := players[0].GetStat("B_RBI"); v != 200 {
       t.Errorf("BuildPlayerFromCsv: expected RBI=200, got %f", v)
     }
-    if v := players[0].positions; len(v) != 2 || v[0] != "2B" || v[1] != "B" {
+    if v := players[0].Positions; len(v) != 2 || v[0] != "2B" || v[1] != "B" {
       t.Errorf("BuildPlayerFromCsv: expected position 2B,B, got %s", v)
     }
   }
@@ -119,7 +119,7 @@ func TestBuildPlayerFromCsvRecord(t *testing.T) {
   if v := player.GetStat("B_RBI"); v != 200 {
     t.Errorf("BuildPlayerFromCsvRecord: expected RBI=200, got %f", v)
   }
-  if v := player.positions; len(v) != 1 || v[0] != "B" {
+  if v := player.Positions; len(v) != 1 || v[0] != "B" {
     t.Errorf("BuildPlayerFromCsvRecord: expected position B, got %s", v)
   }
 

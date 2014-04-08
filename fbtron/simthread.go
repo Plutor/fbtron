@@ -85,7 +85,7 @@ func (sim *Simulation) AddPlayersToPositionLists(players []*Player) {
 
   for _, player := range players {
     num_players++
-    for _, pos := range player.positions {
+    for _, pos := range player.Positions {
       num_player_pos++
       if sim.Avail_players[pos] == nil {
         sim.Avail_players[pos] = make(PlayerSet, 0)
@@ -159,7 +159,7 @@ func (sim *Simulation) RandomAvailablePlayer(position string) *Player {
   }
 
   // Remove from any position list
-  for _, pos := range player.positions {
+  for _, pos := range player.Positions {
     delete(sim.Avail_players[pos], player.ID)
   }
 

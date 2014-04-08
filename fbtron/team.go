@@ -34,10 +34,9 @@ func (team *Team) GetOpenPosition() string {
 func (team *Team) AddPlayer(p *Player, keeper bool) {
   // Select an open position for players with multiple positions.
   var pos string
-  for n := range p.positions {
-    thispos := p.positions[n]
-    if len(team.Roster[thispos]) < cap(team.Roster[thispos]) {
-      pos = thispos
+  for _, playerpos := range p.Positions {
+    if len(team.Roster[playerpos]) < cap(team.Roster[playerpos]) {
+      pos = playerpos
     }
   }
   if pos == "" {

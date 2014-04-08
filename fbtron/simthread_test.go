@@ -128,11 +128,11 @@ func TestScoreSeason(t *testing.T) {
 
   var p *Player
   p = new(Player)
-  p.positions = []string {"2B"}
+  p.Positions = []string {"2B"}
   p.SetStat("B_R", 1.0)
   sim.Teams[0].AddPlayer(p, false)
   p = new(Player)
-  p.positions = []string {"2B"}
+  p.Positions = []string {"2B"}
   p.SetStat("B_R", 2.0)
   sim.Teams[1].AddPlayer(p, false)
 

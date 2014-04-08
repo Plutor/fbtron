@@ -40,8 +40,12 @@
         var player = top_players[i]
         var newrow = $('<tr></tr>')
         newrow.append($('<td></td>').append(i+1) )
-        newrow.append($('<td></td>').append(
-            player['Firstname'] + ' ' + player['Lastname']))
+
+        $('<td></td>')
+            .append(player['Firstname'] + ' ' + player['Lastname'])
+            .append($('<small></small>').append(player['Positions'].join('/')))
+            .appendTo(newrow)
+
         if (player['Total_wins'] > 0) {
           var wins_per_season = player['Total_wins'] / player['Num_seasons']
           newrow.append($('<td></td>').append(wins_per_season.toFixed(2)))
@@ -124,6 +128,10 @@
     #players td {
       border: solid 1px #666;
       padding: 2px 4px;
+    }
+    #players small {
+      padding-left: 8px;
+      color: #666;
     }
 
     #teams {
