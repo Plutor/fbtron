@@ -1,18 +1,19 @@
 package fbtron
 
 import (
+  "fmt"
   "testing"
 )
 
-func FakeSimulation() Simulation {
+func FakeSimulation(csv_suffix string) Simulation {
   var sim Simulation
 
   // Fake init players
-  sim.AddPlayersToPositionLists(
-      BuildPlayersFromCsv("testdata/players_csv_ok.csv", ""))
+  sim.AddPlayersToPositionLists(BuildPlayersFromCsv(
+      fmt.Sprintf("testdata/players_csv_ok%s.csv", csv_suffix), ""))
 
   // Init teams
-  *num_teams = 2
+  *num_teams = 10
   sim.InitTeams(map[string]int {
     "1B": 1,
     "2B": 1,
@@ -27,7 +28,7 @@ func TestRunSimulation(t *testing.T) {
 }
 
 func TestRunSeason(t *testing.T) {
-  sim := FakeSimulation()
+  sim := FakeSimulation("")
 
   sim.RunSeason()
   if v := sim.Num_seasons; v != 1 {
@@ -36,7 +37,7 @@ func TestRunSeason(t *testing.T) {
 }
 
 func TestInitPlayers(t *testing.T) {
-  sim := FakeSimulation()
+  sim := FakeSimulation("")
 
   // TODO: Fix no such file or directory error
   // sim.InitPlayers()
@@ -52,11 +53,11 @@ func TestInitPlayers(t *testing.T) {
 }
 
 func TestInitTeams(t *testing.T) {
-  sim := FakeSimulation()
+  sim := FakeSimulation("")
   // FakeSimulation() calls InitTeams() for us.
 
-  if v := len(sim.Teams); v != 2 {
-    t.Errorf("InitTeams: expected 2 teams created, got %d", v)
+  if v := len(sim.Teams); v != 10 {
+    t.Errorf("InitTeams: expected 10 teams created, got %d", v)
   }
   for n := range sim.Teams {
     if v := sim.Teams[n].GetOpenPosition(); v == "" {
@@ -66,8 +67,7 @@ func TestInitTeams(t *testing.T) {
 }
 
 func TestDoDraft(t *testing.T) {
-  sim := FakeSimulation()
-
+  sim := FakeSimulation("_big")
   sim.DoDraft()
   for n := range sim.Teams {
     if v := sim.Teams[n].GetOpenPosition(); v != "" {
@@ -79,14 +79,15 @@ func TestDoDraft(t *testing.T) {
   for _, players := range sim.Avail_players {
     num_players += len(players)
   }
-  if num_players != 1 {
-    t.Errorf("DoDraft: expected 1 available player after draft, got %d",
+  if num_players == 0 {
+    t.Errorf("DoDraft: expected >0 available player after draft, got %d",
              num_players)
   }
 }
 
 func BenchmarkDoDraft(b *testing.B) {
-  orig_sim := FakeSimulation()
+  orig_sim := FakeSimulation("_big")
+
   b.ResetTimer()
   for i := 0; i < b.N; i++ {
     sim := orig_sim
@@ -95,7 +96,7 @@ func BenchmarkDoDraft(b *testing.B) {
 }
 
 func TestAddPlayersToPositionLists(t *testing.T) {
-  sim := FakeSimulation()
+  sim := FakeSimulation("")
 
   if v := len(sim.Avail_players); v != 2 {
     t.Errorf("AddPlayersToPositionLists: expected 2 position indexes, got %d",
@@ -110,7 +111,7 @@ func TestAddPlayersToPositionLists(t *testing.T) {
 }
 
 func TestRandomAvailablePlayer(t *testing.T) {
-  sim := FakeSimulation()
+  sim := FakeSimulation("")
 
   // Remove players one by one, requesting a random player index, and making
   // sure it always falls in the range of 0<n<len(players)
@@ -125,7 +126,7 @@ func TestRandomAvailablePlayer(t *testing.T) {
 }
 
 func TestScoreSeason(t *testing.T) {
-  sim := FakeSimulation()
+  sim := FakeSimulation("")
 
   var p *Player
   p = new(Player)
@@ -139,16 +140,16 @@ func TestScoreSeason(t *testing.T) {
 
   sim.ScoreSeason()
 
-  if v:= sim.Teams[0].wins; v != 0 {
-    t.Errorf("ScoreSeason: Expected team 0 wins == 0, got %d", v)
+  if v:= sim.Teams[0].wins; v != 8 {
+    t.Errorf("ScoreSeason: Expected team 0 wins == 8, got %d", v)
   }
-  if v:= sim.Teams[1].wins; v != 1 {
-    t.Errorf("ScoreSeason: Expected team 1 wins == 1, got %d", v)
+  if v:= sim.Teams[1].wins; v != 9 {
+    t.Errorf("ScoreSeason: Expected team 1 wins == 9, got %d", v)
   }
 }
 
 func BenchmarkScoreSeason(b *testing.B) {
-  orig_sim := FakeSimulation()
+  orig_sim := FakeSimulation("_big")
   orig_sim.DoDraft()
   b.ResetTimer()
 
@@ -159,7 +160,7 @@ func BenchmarkScoreSeason(b *testing.B) {
 }
 
 func TestEndSeason(t *testing.T) {
-  sim := FakeSimulation()
+  sim := FakeSimulation("")
 
   num_players_start := 0
   for _, players := range sim.Avail_players {
@@ -185,7 +186,7 @@ func TestEndSeason(t *testing.T) {
 }
 
 func BenchmarkEndSeason(b *testing.B) {
-  orig_sim := FakeSimulation()
+  orig_sim := FakeSimulation("_big")
   orig_sim.DoDraft()
   b.ResetTimer()
 
@@ -200,10 +201,7 @@ func TestMerge(t *testing.T) {
 }
 
 func BenchmarkRandomAvailablePlayer(b *testing.B) {
-  sim := FakeSimulation()
-  sim.AddPlayersToPositionLists(
-      BuildPlayersFromCsv("testdata/players_csv_ok_big.csv", ""))
-
+  sim := FakeSimulation("_big")
   for i := 0; i < b.N; i++ {
     sim.RandomAvailablePlayer("1B")
   }

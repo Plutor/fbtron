@@ -169,10 +169,18 @@ func (sim *Simulation) RandomAvailablePlayer(position string) *Player {
 // ScoreSeason compares each team to each other team. For each stat, the team
 // with the greater value is awarded a win (ties are ignored).
 func (sim *Simulation) ScoreSeason() {
-  for a := range sim.Teams {
-    for b := 0; b < a; b++ {
-      for stat := range stat_types {
-        diff := sim.Teams[a].GetStat(stat) - sim.Teams[b].GetStat(stat)
+  stat_cache := make(map[string]map[int]float64)
+  for stat := range stat_types {
+    stat_cache[stat] = make(map[int]float64)
+    for n, team := range sim.Teams {
+      stat_cache[stat][n] = team.GetStat(stat)
+    }
+  }
+
+  for stat := range stat_types {
+    for a := range sim.Teams {
+      for b := 0; b < a; b++ {
+        diff := stat_cache[stat][a] - stat_cache[stat][b]
         if diff > 0 {
           sim.Teams[a].wins++
         } else if diff < 0 {
