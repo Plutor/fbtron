@@ -131,13 +131,13 @@ func TestGetTeamStat(t *testing.T) {
   }
 
   // Test an ab-weighted stat
-  team.Roster["Fake"][0].Player.SetStat("B_BA", 0.200)
+  team.Roster["Fake"][0].Player.SetStat("B_AVG", 0.200)
   team.Roster["Fake"][0].Player.SetStat("B_AB", 10)
-  team.Roster["Fake"][1].Player.SetStat("B_BA", 0.200)
+  team.Roster["Fake"][1].Player.SetStat("B_AVG", 0.200)
   team.Roster["Fake"][1].Player.SetStat("B_AB", 10)
-  team.Roster["Fake"][2].Player.SetStat("B_BA", 0.500)
+  team.Roster["Fake"][2].Player.SetStat("B_AVG", 0.500)
   team.Roster["Fake"][2].Player.SetStat("B_AB", 20)
-  if v := team.GetStat("B_BA"); v != 0.350 {
+  if v := team.GetStat("B_AVG"); v != 0.350 {
     t.Errorf("Error with ab-weighted stat, expected 0.350, got %f", v)
   }
 
