@@ -126,3 +126,20 @@ func TestBuildPlayerFromCsvRecord(t *testing.T) {
   // TODO: Player with same position as default
   // TODO: Empty string as default
 }
+
+func BenchmarkBuildPlayerFromCsvRecord(b *testing.B) {
+  headers := []string {
+      "steamerid", "firstname", "lastname", "position", "age", "team", "G",
+      "PA", "IBB", "NIBB", "BB", "K", "HBP", "SH", "SF", "AB", "H", "1b", "2b",
+      "3b", "HR", "AVG", "OBP", "SLG", "UBR", "UZR", "SB", "CS", "R", "RBI", }
+  row := []string {
+      "10815", "Jurickson", "Profar", "2B", "21", "TEX", "105.3", "429.4",
+      "0.859", "37.0794", "37.9382", "67.7344", "3.865", "3.1757", "3.2556",
+      "381.166", "94.6128", "64.0826", "19.5068", "2.2761", "8.7472",
+      "0.24821941", "0.3176898", "0.38018422", "0.15029", "0.558727733093246",
+      "8.8994", "5.1597", "48.9984", "43.8626", }
+
+  for i := 0; i < b.N; i++ {
+    BuildPlayerFromCsvRecord(headers, row, "B")
+  }
+}

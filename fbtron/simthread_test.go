@@ -86,8 +86,10 @@ func TestDoDraft(t *testing.T) {
 }
 
 func BenchmarkDoDraft(b *testing.B) {
+  orig_sim := FakeSimulation()
+  b.ResetTimer()
   for i := 0; i < b.N; i++ {
-    sim := FakeSimulation()
+    sim := orig_sim
     sim.DoDraft()
   }
 }
@@ -105,7 +107,6 @@ func TestAddPlayersToPositionLists(t *testing.T) {
   if v := len(sim.Avail_players["1B"]); v != 2 {
     t.Errorf("AddPlayersToPositionLists: expected 2 1B, got %d", v)
   }
-
 }
 
 func TestRandomAvailablePlayer(t *testing.T) {
@@ -146,6 +147,17 @@ func TestScoreSeason(t *testing.T) {
   }
 }
 
+func BenchmarkScoreSeason(b *testing.B) {
+  orig_sim := FakeSimulation()
+  orig_sim.DoDraft()
+  b.ResetTimer()
+
+  for i := 0; i < b.N; i++ {
+    sim := orig_sim
+    sim.ScoreSeason()
+  }
+}
+
 func TestEndSeason(t *testing.T) {
   sim := FakeSimulation()
 
@@ -172,6 +184,27 @@ func TestEndSeason(t *testing.T) {
   // TODO: Also add wins and make sure the players all got the wins applied.
 }
 
+func BenchmarkEndSeason(b *testing.B) {
+  orig_sim := FakeSimulation()
+  orig_sim.DoDraft()
+  b.ResetTimer()
+
+  for i := 0; i < b.N; i++ {
+    sim := orig_sim
+    sim.EndSeason()
+  }
+}
+
 func TestMerge(t *testing.T) {
   // TODO
+}
+
+func BenchmarkRandomAvailablePlayer(b *testing.B) {
+  sim := FakeSimulation()
+  sim.AddPlayersToPositionLists(
+      BuildPlayersFromCsv("testdata/players_csv_ok_big.csv", ""))
+
+  for i := 0; i < b.N; i++ {
+    sim.RandomAvailablePlayer("1B")
+  }
 }

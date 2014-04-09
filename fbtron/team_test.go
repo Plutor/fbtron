@@ -158,3 +158,44 @@ func TestGetTeamStat(t *testing.T) {
     t.Errorf("Error with unknown stat, expected 0, got %f", v)
   }
 }
+
+func BenchmarkGetOpenPosition(b *testing.B) {
+  team := FakeTeam()
+  team.SetPositions(POSITIONS)
+
+  b.ResetTimer()
+  for n := 0; n < b.N; n++ {
+    team.GetOpenPosition()
+  }
+}
+
+func BenchmarkAddPlayer(b *testing.B) {
+  teams := make([]Team, b.N)
+  players := []Player {
+      Player {
+        Firstname: "Jimmy",
+        Lastname: "Firstbaseman",
+        Positions: []string { "1B" },
+      },
+      Player {
+        Firstname: "Joey",
+        Lastname: "Secondbaseman",
+        Positions: []string { "2B" },
+      },
+  }
+
+  for n := range teams {
+    teams[n] = Team {}
+    teams[n].SetPositions(map[string]int {
+      "1B": 1,
+      "2B": 1,
+    })
+  }
+
+  b.ResetTimer()
+  for n := 0; n < b.N; n++ {
+    teams[n].AddPlayer(&players[0], false)
+    teams[n].AddPlayer(&players[1], false)
+  }
+}
+
