@@ -85,16 +85,6 @@ func TestDoDraft(t *testing.T) {
   }
 }
 
-func BenchmarkDoDraft(b *testing.B) {
-  orig_sim := FakeSimulation("_big")
-
-  b.ResetTimer()
-  for i := 0; i < b.N; i++ {
-    sim := orig_sim
-    sim.DoDraft()
-  }
-}
-
 func TestAddPlayersToPositionLists(t *testing.T) {
   sim := FakeSimulation("")
 
@@ -148,17 +138,6 @@ func TestScoreSeason(t *testing.T) {
   }
 }
 
-func BenchmarkScoreSeason(b *testing.B) {
-  orig_sim := FakeSimulation("_big")
-  orig_sim.DoDraft()
-  b.ResetTimer()
-
-  for i := 0; i < b.N; i++ {
-    sim := orig_sim
-    sim.ScoreSeason()
-  }
-}
-
 func TestEndSeason(t *testing.T) {
   sim := FakeSimulation("")
 
@@ -185,19 +164,62 @@ func TestEndSeason(t *testing.T) {
   // TODO: Also add wins and make sure the players all got the wins applied.
 }
 
-func BenchmarkEndSeason(b *testing.B) {
-  orig_sim := FakeSimulation("_big")
-  orig_sim.DoDraft()
-  b.ResetTimer()
+func TestMerge(t *testing.T) {
+  // TODO
+}
 
+//
+// Benchmarks
+//
+
+func BenchmarkRunSeason(b *testing.B) {
+  sim := FakeSimulation("_big")
+
+  b.ResetTimer()
   for i := 0; i < b.N; i++ {
-    sim := orig_sim
-    sim.EndSeason()
+    sim.RunSeason()
   }
 }
 
-func TestMerge(t *testing.T) {
-  // TODO
+func BenchmarkDoDraft(b *testing.B) {
+  sim := FakeSimulation("_big")
+
+  b.ResetTimer()
+  for i := 0; i < b.N; i++ {
+    sim.DoDraft()
+    b.StopTimer()
+    sim.ScoreSeason()   // untimed
+    sim.EndSeason()     // untimed
+    b.StartTimer()
+  }
+}
+
+func BenchmarkScoreSeason(b *testing.B) {
+  sim := FakeSimulation("_big")
+
+  b.ResetTimer()
+  b.StopTimer()
+  for i := 0; i < b.N; i++ {
+    sim.DoDraft()     // untimed
+    b.StartTimer()
+    sim.ScoreSeason()
+    b.StopTimer()
+    sim.EndSeason()   // untimed
+  }
+}
+
+func BenchmarkEndSeason(b *testing.B) {
+  sim := FakeSimulation("_big")
+
+  b.ResetTimer()
+  b.StopTimer()
+  for i := 0; i < b.N; i++ {
+    sim.DoDraft()       // untimed
+    sim.ScoreSeason()   // untimed
+    b.StartTimer()
+    sim.EndSeason()
+    b.StopTimer()
+  }
 }
 
 func BenchmarkRandomAvailablePlayer(b *testing.B) {
