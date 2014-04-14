@@ -18,28 +18,30 @@ func (team *Team) SetPositions(positions map[string]int) {
   }
 }
 
-// Returns a list of all positions with open spots on the roster. Returns an
-// empty list if there are no open positions. If a spot has multiple open spots,
-// that position appears multiple times in the list.
-func (team *Team) GetAllOpenPositions() []string {
-  rv := make([]string, 0, len(team.Roster)*2)
-
+// Finds a position with an open spot on the roster and returns it. Returns
+// empty string if there are no open positions.
+func (team *Team) GetOpenPosition() string {
   for position, members := range team.Roster {
-    for i := len(members); i < cap(members); i++ {
-      rv = append(rv, position)
+    if cap(members) > len(members) {
+      return position
     }
   }
-  return rv
+  return ""
 }
 
 // AddPlayer adds the passed player to the team roster. If keeper is true, the
 // player will not be released by the Release() call.
-func (team *Team) AddPlayer(p *Player, keeper bool, pos string) {
-  if team.Roster[pos] == nil {
-    return
+func (team *Team) AddPlayer(p *Player, keeper bool) {
+  // Select an open position for players with multiple positions.
+  var pos string
+  for _, playerpos := range p.Positions {
+    if len(team.Roster[playerpos]) < cap(team.Roster[playerpos]) {
+      pos = playerpos
+    }
   }
-  if len(team.Roster[pos]) == cap(team.Roster[pos]) {
-    // TODO: Why would this happen?
+  if pos == "" {
+    // TODO: No open positions is potentially a bad problem. Instead, create a
+    // special "overflow" player type that is used in this case.
     return
   }
 

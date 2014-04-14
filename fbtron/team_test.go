@@ -1,7 +1,6 @@
 package fbtron
 
 import (
-  "sort"
   "strconv"
   "testing"
 )
@@ -22,31 +21,32 @@ func FakeTeam() *Team {
     player := new(Player)
     player.Firstname = strconv.Itoa(n)
     player.Positions = []string { "Fake" }
-    team.AddPlayer(player, n % 3 == 0, "Fake")
+    team.AddPlayer(player, n % 3 == 0)
   }
 
   return team
 }
 
-func TestGetAllOpenPositions(t *testing.T) {
+func TestGetOpenPosition(t *testing.T) {
   team := FakeTeam()
 
-  v1 := team.GetAllOpenPositions()
-  sort.Strings(v1)
-  if len(v1) != 2 || v1[0] != "1B" || v1[1] != "SP" {
-    t.Errorf("GetOpenPosition: expected [1B, SP], got '%s'", v1)
+  v1 := team.GetOpenPosition()
+  if v1 != "1B" && v1 != "SP" {
+    t.Errorf("GetOpenPosition: expected 1B or SP, got '%s'", v1)
   }
 
   player := Player {
       Firstname: "Openposition",
       Lastname: "Filler",
-      Positions: []string { v1[0] },
+      Positions: []string { v1 },
   }
-  team.AddPlayer(&player, false, v1[0])
+  team.AddPlayer(&player, false)
 
-  v2 := team.GetAllOpenPositions()
-  if len(v2) != 1 && v2[0] != "SP" {
-    t.Errorf("GetOpenPosition: expected [SP], got '%s'", v1)
+  v2 := team.GetOpenPosition()
+  if v2 != "1B" && v2 != "SP" {
+    t.Errorf("GetOpenPosition: expected 1B or SP, got '%s'", v1)
+  } else if v1 == v2 {
+    t.Errorf("GetOpenPosition: expected '%s' != '%s'", v1, v2)
   }
 }
 
@@ -72,9 +72,9 @@ func TestTeamAddPlayer(t *testing.T) {
       Lastname: "Filler",
       Positions: []string { "1B", "SP" },
   }
-  team.AddPlayer(&player, false, "1B")
-  if len(team.Roster["1B"]) != 1 {
-    t.Errorf("Error adding 1B to a team", team.Roster)
+  team.AddPlayer(&player, false)
+  if len(team.Roster["1B"]) != 1 && len(team.Roster["SP"]) != 1 {
+    t.Errorf("Error adding 1B/SP to a team", team.Roster)
   }
 
   player = Player {
@@ -82,9 +82,9 @@ func TestTeamAddPlayer(t *testing.T) {
       Lastname: "Filler, Jr.",
       Positions: []string { "1B", "SP" },
   }
-  team.AddPlayer(&player, false, "SP")
-  if len(team.Roster["SP"]) != 1 {
-    t.Errorf("Error adding a SP to a team")
+  team.AddPlayer(&player, false)
+  if len(team.Roster["1B"]) != 1 || len(team.Roster["SP"]) != 1 {
+    t.Errorf("Error adding a second 1B/SP to a team")
   }
 }
 
@@ -159,17 +159,13 @@ func TestGetTeamStat(t *testing.T) {
   }
 }
 
-//
-// Benchmarks
-//
-
-func BenchmarkGetAllOpenPositions(b *testing.B) {
+func BenchmarkGetOpenPosition(b *testing.B) {
   team := FakeTeam()
   team.SetPositions(POSITIONS)
 
   b.ResetTimer()
   for n := 0; n < b.N; n++ {
-    team.GetAllOpenPositions()
+    team.GetOpenPosition()
   }
 }
 
@@ -198,8 +194,8 @@ func BenchmarkAddPlayer(b *testing.B) {
 
   b.ResetTimer()
   for n := 0; n < b.N; n++ {
-    teams[n].AddPlayer(&players[0], false, "1B")
-    teams[n].AddPlayer(&players[1], false, "2B")
+    teams[n].AddPlayer(&players[0], false)
+    teams[n].AddPlayer(&players[1], false)
   }
 }
 
