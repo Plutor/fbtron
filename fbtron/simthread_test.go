@@ -60,7 +60,7 @@ func TestInitTeams(t *testing.T) {
     t.Errorf("InitTeams: expected 10 teams created, got %d", v)
   }
   for n := range sim.Teams {
-    if v := sim.Teams[n].GetOpenPosition(); v == "" {
+    if v := sim.Teams[n].GetAllOpenPositions(); len(v) == 0 {
       t.Errorf("InitTeams: expected non-blank empty position, got '%s'", v)
     }
   }
@@ -70,7 +70,7 @@ func TestDoDraft(t *testing.T) {
   sim := FakeSimulation("_big")
   sim.DoDraft()
   for n := range sim.Teams {
-    if v := sim.Teams[n].GetOpenPosition(); v != "" {
+    if v := sim.Teams[n].GetAllOpenPositions(); len(v) != 0 {
       t.Errorf("DoDraft: team %d expected blank empty position, got '%s'", n, v)
     }
   }
@@ -122,11 +122,11 @@ func TestScoreSeason(t *testing.T) {
   p = new(Player)
   p.Positions = []string {"2B"}
   p.SetStat("B_R", 1.0)
-  sim.Teams[0].AddPlayer(p, false)
+  sim.Teams[0].AddPlayer(p, false, "2B")
   p = new(Player)
   p.Positions = []string {"2B"}
   p.SetStat("B_R", 2.0)
-  sim.Teams[1].AddPlayer(p, false)
+  sim.Teams[1].AddPlayer(p, false, "2B")
 
   sim.ScoreSeason()
 

@@ -117,24 +117,19 @@ func (sim *Simulation) RunSeason() {
 }
 
 func (sim *Simulation) DoDraft() {
-  for n := range sim.Teams {
-    team := sim.Teams[n]
-    for {
-      pos := team.GetOpenPosition()
-      if pos == "" {
-        break
-      }
-
+  for _, team := range sim.Teams {
+    openpos := team.GetAllOpenPositions()
+    for _, pos := range openpos {
       // Choose a random available player
-      p := sim.RandomAvailablePlayer(pos)
-      if p == nil {
+      player := sim.RandomAvailablePlayer(pos)
+      if player == nil {
         // None available! BIG PROBLEM!
         // TODO: What do we do?
         break
       }
 
       // Add to the team
-      team.AddPlayer(p, false)
+      team.AddPlayer(player, false, pos)
     }
   }
 }
