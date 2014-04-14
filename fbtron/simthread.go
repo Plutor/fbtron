@@ -77,7 +77,7 @@ func (sim *Simulation) InitPlayers() {
 
 func (sim *Simulation) AddPlayersToPositionLists(players []*Player) {
   if sim.Avail_players == nil {
-    sim.Avail_players = make(map[string]PlayerSet)
+    sim.Avail_players = make(map[string]PlayerSet, len(players))
   }
 
   num_players := 0
@@ -169,9 +169,9 @@ func (sim *Simulation) RandomAvailablePlayer(position string) *Player {
 // ScoreSeason compares each team to each other team. For each stat, the team
 // with the greater value is awarded a win (ties are ignored).
 func (sim *Simulation) ScoreSeason() {
-  stat_cache := make(map[string]map[int]float64)
+  stat_cache := make(map[string]map[int]float64, len(stat_types))
   for stat := range stat_types {
-    stat_cache[stat] = make(map[int]float64)
+    stat_cache[stat] = make(map[int]float64, len(sim.Teams))
     for n, team := range sim.Teams {
       stat_cache[stat][n] = team.GetStat(stat)
     }

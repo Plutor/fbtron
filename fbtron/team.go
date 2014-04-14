@@ -12,7 +12,7 @@ type Team struct {
 }
 
 func (team *Team) SetPositions(positions map[string]int) {
-  team.Roster = make(map[string][]TeamMember)
+  team.Roster = make(map[string][]TeamMember, len(positions))
   for position, num := range positions {
     team.Roster[position] = make([]TeamMember, 0, num)
   }
@@ -55,7 +55,7 @@ func (team *Team) AddPlayer(p *Player, keeper bool) {
 func (team *Team) Release() []*Player {
   team.CreditRosterWithWins()
 
-  released := make([]*Player, 0)
+  released := make([]*Player, 0, len(team.Roster)*2)
   for position, members := range team.Roster {
     newmembers := make([]TeamMember, 0, len(members))
     for n := range members {

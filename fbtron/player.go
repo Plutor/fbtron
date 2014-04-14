@@ -22,7 +22,7 @@ type Player struct {
 
 func (p *Player) SetStat(name string, value float64) {
   if p.stats == nil {
-    p.stats = make(map[string]float64)
+    p.stats = make(map[string]float64, len(stat_types))
   }
   p.stats[name] = value
 }
