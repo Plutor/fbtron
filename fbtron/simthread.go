@@ -177,10 +177,12 @@ func (sim *Simulation) ScoreSeason() {
     }
   }
 
-  for stat := range stat_types {
+  var astat, diff float64
+  for _, cache := range stat_cache {
     for a := range sim.Teams {
+      astat = cache[a]
       for b := 0; b < a; b++ {
-        diff := stat_cache[stat][a] - stat_cache[stat][b]
+        diff = astat - cache[b]
         if diff > 0 {
           sim.Teams[a].wins++
         } else if diff < 0 {
