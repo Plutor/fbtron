@@ -22,10 +22,7 @@ func FakeSimulation(csv_suffix string) Simulation {
   return sim
 }
 
-func TestRunSimulation(t *testing.T) {
-  // TODO: Test starting a simulation thread, ask it for data, make sure data is
-  // good.
-}
+// Tests and benchmarks for RunSimulation are in main_test.go
 
 func TestRunSeason(t *testing.T) {
   sim := FakeSimulation("")
