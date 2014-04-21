@@ -257,7 +257,7 @@ func (sim *Simulation) TopPlayers(num int) PlayerSlice {
   }
   sort.Sort(rv)
 
-  if num <= 0 {
+  if num <= 0 || num >= len(rv) {
     return rv
   }
   return rv[:num]

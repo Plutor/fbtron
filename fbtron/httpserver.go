@@ -5,6 +5,7 @@ import (
   "flag"
   "fmt"
   "html/template"
+  "io/ioutil"
   "net/http"
 )
 
@@ -26,6 +27,7 @@ func RunWebServer(in <-chan Simulation, out chan<- string) {
 
   http.HandleFunc("/", MainPage)
   http.HandleFunc("/data", GetData)
+  http.HandleFunc("/add", AddPlayers)
   http.Handle("/static/",
       http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 
@@ -56,4 +58,22 @@ func GetData(w http.ResponseWriter, req *http.Request) {
                        }); err != nil {
     fmt.Println(err)
   }
+}
+
+func AddPlayers(w http.ResponseWriter, req *http.Request) {
+  defer req.Body.Close()
+  reqbody, err := ioutil.ReadAll(req.Body)
+
+  if err != nil {
+    http.Error(w, err.Error(), 500)
+  }
+
+  // TODO: Make sure the string is parseable JSON
+
+  fmt.Printf("Got add post: %s\n", string(reqbody))
+  outchan <- string(reqbody)
+  // TODO: Expect response?
+}
+
+func RemovePlayer(w http.ResponseWriter, req *http.Request) {
 }

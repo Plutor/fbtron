@@ -141,7 +141,17 @@
     }
 
     function SubmitForm(eventobject) {
-      // TODO
+      $.ajax({
+          type: "POST",
+          url: "/add",
+          data: $("#drafting-form").serialize(),
+          success: function(data) {
+              $("#form-reset").click();
+          }
+      });
+
+
+      return false;
     }
 
     $(document).ready(function() {

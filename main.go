@@ -41,19 +41,23 @@ func main() {
 
   for {
     select {
-    case <-http_recv:
-      // Got a message from the http server. Collect stats from the simulation
-      // threads and give the http server the totals.
-      var sim_totals fbtron.Simulation
-      for n := range sendchannels {
-        sendchannels[n] <- "ping"
-        sim := <-recvchannels[n]
-        sim_totals.Merge(&sim)
+    case msg := <-http_recv:
+      // Got a message from the http server.
+      switch msg {
+      case "ping":
+        // Collect stats from the simulation
+        // threads and give the http server the totals.
+        var sim_totals fbtron.Simulation
+        for n := range sendchannels {
+          sendchannels[n] <- "ping"
+          sim := <-recvchannels[n]
+          sim_totals.Merge(&sim)
+        }
+        http_send <- sim_totals
+      default:
+        // TODO: If the message contains a list of users who were drafted, tell
+        // the simulation threads.
       }
-      http_send <- sim_totals
-
-      // TODO: If the message contains a list of users who were drafted, tell
-      // the simulation threads.
 
     case <-time.After(3 * time.Second):
       // Just log something to confirm we're still running
