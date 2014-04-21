@@ -3,11 +3,16 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
   <script src="/static/jquery.sparkline.min.js"></script>
   <script type="text/javascript">
-    function GetData() {
-      // TODO: If the form is partially filled out, don't do anything.
+    var refresh_freq_msecs = 1000;
+    var refresh_enabled = true;
 
-      jQuery.get("/data", ParseAndShowData, "json")
-            .fail(ShowDataFailure)
+    function GetData() {
+      if (refresh_enabled) {
+        jQuery.get("/data", ParseAndShowData, "json")
+              .fail(ShowDataFailure)
+      } else {
+        ScheduleGetData();
+      }
     }
 
     function ParseAndShowData(data, textStatus, jqXHR) {
@@ -20,7 +25,7 @@
       // Show teams and keepers
       ShowTeams(data['Teams'])
 
-      setTimeout(GetData, 3000)
+      ScheduleGetData();
     }
 
     var recent_velocity = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -53,10 +58,10 @@
           newrow.append($('<td>-</td>'))
         }
 
-        // TODO: Finish form for drafting keepers
         for (var t = 0; t < teams.length; t++) {
           var radio = $('<input type="radio"/>').attr('name', player['ID'])
                                                 .val(t)
+                                                .change(DisableRefresh)
           newrow.append($('<td></td>').append(radio))
         }
 
@@ -95,10 +100,39 @@
       // TODO: Show failure message
 
       // TODO: Back off
-      setTimeout(GetData, 3000)
+      ScheduleGetData();
+    }
+
+    function ScheduleGetData() {
+      setTimeout(GetData, refresh_freq_msecs)
+    }
+
+    function DisableRefresh(eventobject) {
+      // Show submit and reset buttons
+      $("#form-submit").css('visibility', 'visible');
+      $("#form-reset").css('visibility', 'visible');
+
+      refresh_enabled = false;
+    }
+
+    function EnableRefresh(eventobject) {
+      // Hide submit and reset buttons
+      $("#form-submit").css('visibility', 'hidden');
+      $("#form-reset").css('visibility', 'hidden');
+
+      refresh_enabled = true;
+    }
+
+    function SubmitForm(eventobject) {
+      // TODO
     }
 
     $(document).ready(function() {
+      $("#form-reset").click(EnableRefresh);
+      $("#form-submit").click(SubmitForm);
+
+      EnableRefresh();
+
       GetData();
     })
   </script>
@@ -134,6 +168,14 @@
       color: #666;
     }
 
+    #form-submit {
+      font-weight: bold;
+      background: #cfc;
+    }
+    #form-reset {
+      background: #fcc;
+    }
+
     #teams {
       font-size: 80%;
     }
@@ -160,8 +202,13 @@
   </div>
 </div>
 
-<table id="players">
-</table>
+<form id="drafting-form">
+  <button type="reset" id="form-reset">Reset</button>
+  <button type="submit" id="form-submit">Submit</button>
+
+  <table id="players">
+  </table>
+</form>
 
 </body>
 </html>
