@@ -16,6 +16,8 @@
     }
 
     function ParseAndShowData(data, textStatus, jqXHR) {
+      var start = $.now()
+
       // Show num_seasons speed sparkline
       ShowVelocity(data['Num_seasons'])
 
@@ -24,6 +26,8 @@
 
       // Show teams and keepers
       ShowTeams(data['Teams'])
+
+      console.debug("ParseAndShowData: " + ($.now() - start) + " ms");
 
       ScheduleGetData();
     }
@@ -40,32 +44,45 @@
     }
 
     function ShowTopPlayers(top_players, teams) {
-      $('#players tr').remove()
+      // Remove rows from the bottom if there are too many
+      while ($('#players tr').length > top_players.length) {
+        $('#players tr').eq(top_players.length).remove()
+      }
+
       for (var i = 0; i < top_players.length; i++) {
         var player = top_players[i]
-        var newrow = $('<tr></tr>')
-        newrow.append($('<td></td>').append(i+1) )
+        var row = $('#players tr').eq(i)
 
-        $('<td></td>')
-            .append(player['Firstname'] + ' ' + player['Lastname'])
+        if (row.length == 0) {
+          // More rows than before -- must create a new one
+          row = $('<tr></tr>')
+          row.append($('<td></td>').append(i+1) )
+          row.append($('<td></td>'))  // name + pos
+          row.append($('<td></td>'))  // wins
+          for (var t = 0; t < teams.length; t++) {
+            var radio = $('<input type="radio"/>')
+            row.append($('<td></td>').append(radio))
+          }
+          row.appendTo('#players')
+        }
+
+        row.children().eq(1)
+            .text(player['Firstname'] + ' ' + player['Lastname'])
             .append($('<small></small>').append(player['Positions'].join('/')))
-            .appendTo(newrow)
 
         if (player['Total_wins'] > 0) {
           var wins_per_season = player['Total_wins'] / player['Num_seasons']
-          newrow.append($('<td></td>').append(wins_per_season.toFixed(2)))
+          row.children().eq(2).text(wins_per_season.toFixed(2))
         } else {
-          newrow.append($('<td>-</td>'))
+          row.children().eq(2).text('-')
         }
 
         for (var t = 0; t < teams.length; t++) {
-          var radio = $('<input type="radio"/>').attr('name', player['ID'])
-                                                .val(t)
-                                                .change(DisableRefresh)
-          newrow.append($('<td></td>').append(radio))
+          var radio = row.children().eq(t+3).children('input')
+          radio.attr('name', player['ID'])
+               .val(t)
+               .change(DisableRefresh)
         }
-
-        newrow.appendTo('#players')
       }
     }
 
