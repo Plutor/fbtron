@@ -43,10 +43,7 @@ func TestAddPlayers(t *testing.T) {
   inchan = sendchan  // For the server
   outchan = recvchan
 
-  expectedval := "{1234:1,2345:2,3456:3}"
-
-  resp, err := http.Post(server.URL, "text/json",
-                         bytes.NewBufferString(expectedval))
+  resp, err := http.Post(server.URL, "text/json", "1234=1&2345=2&3456=3")
   if err != nil {
     t.Errorf("AddPlayers: error %s", err)
   }

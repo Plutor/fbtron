@@ -5,8 +5,8 @@ import (
   "flag"
   "fmt"
   "html/template"
-  "io/ioutil"
   "net/http"
+  "strconv"
 )
 
 const (
@@ -74,19 +74,40 @@ func GetData(w http.ResponseWriter, req *http.Request) {
 }
 
 func AddPlayers(w http.ResponseWriter, req *http.Request) {
-  defer req.Body.Close()
-  reqbody, err := ioutil.ReadAll(req.Body)
-
-  if err != nil {
-    http.Error(w, err.Error(), 500)
-  }
-
-  // TODO: Parse JSON
-
-  fmt.Printf("Got add post: %s\n", string(reqbody))
-  //outchan <- string(reqbody)
-  // TODO: Expect response?
+  SendPlayerActions(w, req, ACTION_ADD)
 }
 
 func RemovePlayer(w http.ResponseWriter, req *http.Request) {
+  SendPlayerActions(w, req, ACTION_DEL)
+}
+
+func SendPlayerActions(w http.ResponseWriter, req *http.Request, action int) {
+  req.ParseForm()
+
+  // Send a message for every player
+  msgs_sent := 0
+  for pid, tids := range req.PostForm {
+    player_id, err := strconv.Atoi(pid)
+    if err != nil {
+      continue
+    }
+    if len(tids) != 1 {
+      continue
+    }
+    team_id, err := strconv.Atoi(tids[0])
+    if err != nil {
+      continue
+    }
+
+    msgs_sent++
+    outchan <- UserAction{action, player_id, team_id}
+    _ = <-inchan  // TODO: Don't throw these away
+  }
+
+  if msgs_sent == 0 {
+    http.Error(w, "No players to add/del", 500)
+  }
+
+  // TODO: Expect response?
+  fmt.Printf("Got %d add/del messages\n", msgs_sent)
 }
