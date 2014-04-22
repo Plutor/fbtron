@@ -101,8 +101,13 @@
           for (var j = 0; j < team['Roster'][pos].length; j++) {
             if (team['Roster'][pos][j]['Keeper']) {
               var player = team['Roster'][pos][j]['Player']
-              roster.append($('<li></li>').html(
-                  player['Firstname'] + ' ' + player['Lastname']))
+              roster.append(
+                $('<li></li>')
+                    .html(player['Firstname'] + ' ' + player['Lastname'])
+                    .append(
+                        $('<small></small>').append(
+                            player['Positions'].join('/')))
+              )
             }
           }
         }
@@ -212,6 +217,10 @@
     #teams ul {
       margin: 0 0 0 10px;
       padding-left: 10px;
+    }
+    #teams small {
+      padding-left: 8px;
+      color: #666;
     }
   </style>
 
