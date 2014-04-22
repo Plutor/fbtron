@@ -126,16 +126,16 @@
 
     function DisableRefresh(eventobject) {
       // Show submit and reset buttons
-      $("#form-submit").css('visibility', 'visible');
-      $("#form-reset").css('visibility', 'visible');
+      $(".form-submit").css('visibility', 'visible');
+      $(".form-reset").css('visibility', 'visible');
 
       refresh_enabled = false;
     }
 
     function EnableRefresh(eventobject) {
       // Hide submit and reset buttons
-      $("#form-submit").css('visibility', 'hidden');
-      $("#form-reset").css('visibility', 'hidden');
+      $(".form-submit").css('visibility', 'hidden');
+      $(".form-reset").css('visibility', 'hidden');
 
       refresh_enabled = true;
     }
@@ -146,17 +146,16 @@
           url: "/add",
           data: $("#drafting-form").serialize(),
           success: function(data) {
-              $("#form-reset").click();
+              $(".form-reset").eq(0).click();
           }
       });
-
 
       return false;
     }
 
     $(document).ready(function() {
-      $("#form-reset").click(EnableRefresh);
-      $("#form-submit").click(SubmitForm);
+      $(".form-reset").click(EnableRefresh);
+      $(".form-submit").click(SubmitForm);
 
       EnableRefresh();
 
@@ -195,11 +194,11 @@
       color: #666;
     }
 
-    #form-submit {
+    .form-submit {
       font-weight: bold;
       background: #cfc;
     }
-    #form-reset {
+    .form-reset {
       background: #fcc;
     }
 
@@ -230,11 +229,14 @@
 </div>
 
 <form id="drafting-form">
-  <button type="reset" id="form-reset">Reset</button>
-  <button type="submit" id="form-submit">Submit</button>
+  <button type="reset" class="form-reset">Reset</button>
+  <button type="submit" class="form-submit">Submit</button>
 
   <table id="players">
   </table>
+
+  <button type="reset" class="form-reset">Reset</button>
+  <button type="submit" class="form-submit">Submit</button>
 </form>
 
 </body>
