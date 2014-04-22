@@ -99,8 +99,8 @@
         var roster = $('<ul></ul>')
         for (var pos in team['Roster']) {
           for (var j = 0; j < team['Roster'][pos].length; j++) {
-            var player = team['Roster'][pos][j]['Player']
-            if (player['Keeper']) {
+            if (team['Roster'][pos][j]['Keeper']) {
+              var player = team['Roster'][pos][j]['Player']
               roster.append($('<li></li>').html(
                   player['Firstname'] + ' ' + player['Lastname']))
             }

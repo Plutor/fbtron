@@ -165,6 +165,18 @@ func TestMerge(t *testing.T) {
   // TODO
 }
 
+func TestAddPlayer(t *testing.T) {
+  // TODO
+}
+
+func TestDeletePlayer(t *testing.T) {
+  // TODO
+}
+
+func TestResetStats(t *testing.T) {
+  // TODO
+}
+
 //
 // Benchmarks
 //

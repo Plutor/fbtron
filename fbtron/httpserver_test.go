@@ -4,8 +4,8 @@ import (
   "bytes"
   "net/http"
   "net/http/httptest"
-  "net/url"
   "testing"
+  "time"
 )
 
 func TestGetData(t *testing.T) {
@@ -35,55 +35,86 @@ func TestGetData(t *testing.T) {
 }
 
 func TestAddPlayers(t *testing.T) {
-  recvchan := make(chan UserAction, 1)
-  sendchan := make(chan Simulation, 1)
+  recvchan := make(chan UserAction, 3)
+  sendchan := make(chan Simulation, 3)
 
   server := httptest.NewServer(http.HandlerFunc(AddPlayers))
   defer server.Close()
   inchan = sendchan  // For the server
   outchan = recvchan
 
-  resp, err := http.Post(server.URL, "text/json", "1234=1&2345=2&3456=3")
+  // The server will expect these. This is a little messy.
+  sendchan <- Simulation{}
+  sendchan <- Simulation{}
+  sendchan <- Simulation{}
+  resp, err := http.Post(server.URL, "application/x-www-form-urlencoded",
+                         bytes.NewBufferString("1234=1&2345=2&3456=3"))
   if err != nil {
     t.Errorf("AddPlayers: error %s", err)
+  }
+
+  // Make sure recvchan gets the right message
+  expected_msgs := 3
+  for expected_msgs > 0 {
+    select {
+    case msg := <-recvchan:
+      if msg.action != ACTION_ADD {
+        t.Errorf("AddPlayers: expected message action ACTION_ADD, got: %d",
+                 msg.action)
+        return
+      }
+      expected_msgs--
+    case <-time.After(5 * time.Second):
+      t.Errorf("AddPlayers: expected 3 messages, still waiting for %d more",
+               expected_msgs)
+    }
   }
 
   // Make sure we got an OK
   if resp.StatusCode != 200 {
     t.Errorf("AddPlayers: expected response code 200, got %d", resp.StatusCode)
   }
-
-  // Make sure recvchan gets the right message
-  // select {
-  // case msg := <-recvchan:
-  //   if msg != expectedval {
-  //     t.Errorf("AddPlayers: expected message:\n%s\ngot:\n%s", expectedval, msg)
-  //   }
-  // default:
-  //   t.Errorf("AddPlayers: expected message, got none")
-  // }
 }
 
-func TestRemovePlayer(t *testing.T) {
-  recvchan := make(chan UserAction, 1)
-  sendchan := make(chan Simulation, 1)
+func TestRemovePlayers(t *testing.T) {
+  recvchan := make(chan UserAction, 3)
+  sendchan := make(chan Simulation, 3)
 
-  server := httptest.NewServer(http.HandlerFunc(RemovePlayer))
+  server := httptest.NewServer(http.HandlerFunc(RemovePlayers))
   defer server.Close()
   inchan = sendchan  // For the server
   outchan = recvchan
 
-  var postvalues url.Values
-  resp, err := http.PostForm(server.URL, postvalues)
+  // The server will expect these. This is a little messy.
+  sendchan <- Simulation{}
+  sendchan <- Simulation{}
+  sendchan <- Simulation{}
+  resp, err := http.Post(server.URL, "application/x-www-form-urlencoded",
+                         bytes.NewBufferString("1234=1&2345=2&3456=3"))
   if err != nil {
-    t.Errorf("RemovePlayer: error %s", err)
+    t.Errorf("RemovePlayers: error %s", err)
+  }
+
+  // Make sure recvchan gets the right message
+  expected_msgs := 3
+  for expected_msgs > 0 {
+    select {
+    case msg := <-recvchan:
+      if msg.action != ACTION_REM {
+        t.Errorf("RemovePlayers: expected message action ACTION_REM, got: %d",
+                 msg.action)
+        return
+      }
+      expected_msgs--
+    case <-time.After(5 * time.Second):
+      t.Errorf("RemovePlayers: expected 3 messages, still waiting for %d more",
+               expected_msgs)
+    }
   }
 
   // Make sure we got an OK
   if resp.StatusCode != 200 {
-    t.Errorf("RemovePlayer: expected response code 200, got %d",
+    t.Errorf("RemovePlayers: expected response code 200, got %d",
              resp.StatusCode)
   }
-
-  // TODO: Make sure recvchan gets the right request
 }

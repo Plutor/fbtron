@@ -12,7 +12,7 @@ import (
 const (
   ACTION_PING = iota
   ACTION_ADD  = iota
-  ACTION_DEL  = iota
+  ACTION_REM  = iota
   ACTION_QUIT = iota
 )
 
@@ -24,7 +24,7 @@ type JsonData struct {
 
 type UserAction struct {
   action      int
-  player_id   int
+  player_id   string
   team_id     int
 }
 
@@ -41,6 +41,7 @@ func RunWebServer(in <-chan Simulation, out chan<- UserAction) {
   http.HandleFunc("/", MainPage)
   http.HandleFunc("/data", GetData)
   http.HandleFunc("/add", AddPlayers)
+  http.HandleFunc("/rem", RemovePlayers)
   http.Handle("/static/",
       http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 
@@ -60,7 +61,7 @@ func MainPage(w http.ResponseWriter, req *http.Request) {
 // GetData builds JSON that represents the current state of the simulation. The
 // JavaScript on the main page queries this data and displays it.
 func GetData(w http.ResponseWriter, req *http.Request) {
-  outchan <- UserAction{ACTION_PING, 0, 0}
+  outchan <- UserAction{ACTION_PING, "", 0}
   sim_totals := <-inchan
 
   enc := json.NewEncoder(w)
@@ -77,8 +78,8 @@ func AddPlayers(w http.ResponseWriter, req *http.Request) {
   SendPlayerActions(w, req, ACTION_ADD)
 }
 
-func RemovePlayer(w http.ResponseWriter, req *http.Request) {
-  SendPlayerActions(w, req, ACTION_DEL)
+func RemovePlayers(w http.ResponseWriter, req *http.Request) {
+  SendPlayerActions(w, req, ACTION_REM)
 }
 
 func SendPlayerActions(w http.ResponseWriter, req *http.Request, action int) {
@@ -86,21 +87,19 @@ func SendPlayerActions(w http.ResponseWriter, req *http.Request, action int) {
 
   // Send a message for every player
   msgs_sent := 0
-  for pid, tids := range req.PostForm {
-    player_id, err := strconv.Atoi(pid)
-    if err != nil {
+  for player_id, team_ids := range req.PostForm {
+    if len(team_ids) != 1 {
+      fmt.Println("not enough team_ids for player_id ", player_id)
       continue
     }
-    if len(tids) != 1 {
-      continue
-    }
-    team_id, err := strconv.Atoi(tids[0])
+    team_id, err := strconv.Atoi(team_ids[0])
     if err != nil {
+      fmt.Println("error converting team_id ", string(team_ids[0]), ": ", err)
       continue
     }
 
     msgs_sent++
-    outchan <- UserAction{action, player_id, team_id}
+    outchan <- UserAction{action, string(player_id), team_id}
     _ = <-inchan  // TODO: Don't throw these away
   }
 

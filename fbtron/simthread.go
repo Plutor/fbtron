@@ -44,11 +44,14 @@ func RunSimulation(inchan <-chan UserAction, outchan chan<- Simulation) {
   for {
     select {
     case msg := <-inchan:
-      if msg.action == ACTION_QUIT {
+      switch msg.action {
+      case ACTION_QUIT:
         break
+      case ACTION_ADD:
+        sim.AddKeeper(msg.player_id, msg.team_id)
+      case ACTION_REM:
+        sim.RemoveKeeper(msg.player_id, msg.team_id)
       }
-
-      // TODO: Handle add/delete messages
 
       // Any message gets the response of the current status
       outchan <- sim
@@ -261,4 +264,51 @@ func (sim *Simulation) TopPlayers(num int) PlayerSlice {
     return rv
   }
   return rv[:num]
+}
+
+// AddKeeper adds a keeper to the specified team
+func (sim *Simulation) AddKeeper(player_id string, team_id int) {
+  if team_id >= len(sim.Teams) {
+    fmt.Println("Couldn't find team")
+    return
+  }
+  team := sim.Teams[team_id]
+
+  // Find the player
+  var player *Player
+  for _, players := range sim.Avail_players {
+    for _, p := range players {
+      if p.ID == player_id {
+        player = p
+        goto Found
+      }
+    }
+  }
+  fmt.Println("Couldn't find player")
+  return  // Didn't find the player
+  Found:
+
+  // Add to the team
+  team.AddPlayer(player, true)
+
+  // Remove from any position list
+  for _, pos := range player.Positions {
+    delete(sim.Avail_players[pos], player.ID)
+  }
+
+  sim.ResetStats()
+}
+
+func (sim *Simulation) RemoveKeeper(keeper_id string, team_id int) {
+  // TODO
+  sim.ResetStats()
+}
+
+// ResetStats resets every player's stats to zero
+func (sim *Simulation) ResetStats() {
+  for _, p := range sim.All_players {
+    p.ResetWins()
+  }
+
+  // TODO: Also reset some stats for teams?
 }
