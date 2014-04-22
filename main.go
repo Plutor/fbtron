@@ -26,40 +26,32 @@ func main() {
 
   fmt.Printf("Starting %d threads on %d cpus\n", *num_threads, *num_cpus)
 
-  sendchannels := make([]chan string, *num_threads)
+  sendchannels := make([]chan fbtron.UserAction, *num_threads)
   recvchannels := make([]chan fbtron.Simulation, *num_threads)
   for n := range sendchannels {
-    sendchannels[n] = make(chan string, 1)
+    sendchannels[n] = make(chan fbtron.UserAction, 1)
     recvchannels[n] = make(chan fbtron.Simulation, 1)
     go fbtron.RunSimulation(sendchannels[n], recvchannels[n])
   }
 
   // Start http thread
-  http_recv := make(chan string)
+  http_recv := make(chan fbtron.UserAction)
   http_send := make(chan fbtron.Simulation)
   go fbtron.RunWebServer(http_send, http_recv)
 
   for {
     select {
     case msg := <-http_recv:
-      // Got a message from the http server.
-      switch msg {
-      case "ping":
-        // Collect stats from the simulation
-        // threads and give the http server the totals.
-        var sim_totals fbtron.Simulation
-        for n := range sendchannels {
-          sendchannels[n] <- "ping"
-          sim := <-recvchannels[n]
-          sim_totals.Merge(&sim)
-        }
-        http_send <- sim_totals
-      default:
-        // TODO: If the message contains a list of users who were drafted, tell
-        // the simulation threads.
+      // Got a message from the http server, send it to the simulators, collect
+      // and sum the responses, and send it back to the http server.
+      var sim_totals fbtron.Simulation
+      for n := range sendchannels {
+        sendchannels[n] <- msg
+        sim := <-recvchannels[n]
+        sim_totals.Merge(&sim)
       }
-
-    case <-time.After(3 * time.Second):
+      http_send <- sim_totals
+    case <-time.After(30 * time.Second):
       // Just log something to confirm we're still running
       fmt.Println("...")
     }

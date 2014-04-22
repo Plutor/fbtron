@@ -9,19 +9,32 @@ import (
   "net/http"
 )
 
+const (
+  ACTION_PING = iota
+  ACTION_ADD  = iota
+  ACTION_DEL  = iota
+  ACTION_QUIT = iota
+)
+
 type JsonData struct {
   Num_seasons   int
   Top_players   PlayerSlice
   Teams         []Team
 }
 
+type UserAction struct {
+  action      int
+  player_id   int
+  team_id     int
+}
+
 var http_port = flag.Int("http_port", 8888, "Port to start http server on")
 
 var inchan <-chan Simulation
-var outchan chan<- string
+var outchan chan<- UserAction
 
 // RunWebServer starts a UI interface thread.
-func RunWebServer(in <-chan Simulation, out chan<- string) {
+func RunWebServer(in <-chan Simulation, out chan<- UserAction) {
   inchan = in
   outchan = out
 
@@ -47,7 +60,7 @@ func MainPage(w http.ResponseWriter, req *http.Request) {
 // GetData builds JSON that represents the current state of the simulation. The
 // JavaScript on the main page queries this data and displays it.
 func GetData(w http.ResponseWriter, req *http.Request) {
-  outchan <- "ping"
+  outchan <- UserAction{ACTION_PING, 0, 0}
   sim_totals := <-inchan
 
   enc := json.NewEncoder(w)
@@ -68,10 +81,10 @@ func AddPlayers(w http.ResponseWriter, req *http.Request) {
     http.Error(w, err.Error(), 500)
   }
 
-  // TODO: Make sure the string is parseable JSON
+  // TODO: Parse JSON
 
   fmt.Printf("Got add post: %s\n", string(reqbody))
-  outchan <- string(reqbody)
+  //outchan <- string(reqbody)
   // TODO: Expect response?
 }
 

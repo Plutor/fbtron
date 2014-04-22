@@ -35,7 +35,7 @@ var num_teams = flag.Int("teams", 10, "Number of teams")
 
 // RunSimulation is run as a goroutine. It receives information from main()
 // about events, and it replies with its current status.
-func RunSimulation(inchan <-chan string, outchan chan<- Simulation) {
+func RunSimulation(inchan <-chan UserAction, outchan chan<- Simulation) {
   var sim Simulation
 
   sim.InitPlayers()
@@ -44,14 +44,14 @@ func RunSimulation(inchan <-chan string, outchan chan<- Simulation) {
   for {
     select {
     case msg := <-inchan:
-      // TODO: How do we tell the simulator that players were drafted through
-      // the web UI?
-      switch msg {
-      case "quitquitquit":
+      if msg.action == ACTION_QUIT {
         break
-      default:
-        outchan <- sim
       }
+
+      // TODO: Handle add/delete messages
+
+      // Any message gets the response of the current status
+      outchan <- sim
     default:
       // No message ready, run a season
       sim.RunSeason()
