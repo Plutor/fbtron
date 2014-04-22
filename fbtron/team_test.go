@@ -19,6 +19,7 @@ func FakeTeam() *Team {
 
   for n := 0; n < 6; n++ {
     player := new(Player)
+    player.ID = strconv.Itoa(n)
     player.Firstname = strconv.Itoa(n)
     player.Positions = []string { "Fake" }
     team.AddPlayer(player, n % 3 == 0)
@@ -49,7 +50,6 @@ func TestGetOpenPosition(t *testing.T) {
     t.Errorf("GetOpenPosition: expected '%s' != '%s'", v1, v2)
   }
 }
-
 
 func TestTeamAddPlayer(t *testing.T) {
   team := FakeTeam()
@@ -99,6 +99,31 @@ func TestRelease(t *testing.T) {
   if v := len(team.Roster["Fake"]); v != 2 {
     t.Errorf("Error releasing non-keeper players: " +
              "expected 2 remaining, got %d", v)
+  }
+}
+
+func TestHasPlayer(t *testing.T) {
+  team := FakeTeam()
+
+  if team.HasPlayer("0", true) != true {
+    t.Errorf("HasPlayer: Expected player 0 to be a keeper, got false")
+  }
+  if team.HasPlayer("0", false) != true {
+    t.Errorf("HasPlayer: Expected player 0 to be on the roster, got false")
+  }
+
+  if team.HasPlayer("1", true) != false {
+    t.Errorf("HasPlayer: Expected player 1 to not be a keeper, got true")
+  }
+  if team.HasPlayer("1", false) != true {
+    t.Errorf("HasPlayer: Expected player 1 to be on the roster, got false")
+  }
+
+  if team.HasPlayer("other", true) != false {
+    t.Errorf("HasPlayer: Expected other to not be a keeper, got true")
+  }
+  if team.HasPlayer("other", false) != false {
+    t.Errorf("HasPlayer: Expected other to not be on the roster, got true")
   }
 }
 

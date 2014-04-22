@@ -256,7 +256,14 @@ func (ps PlayerSlice) Swap(i, j int) {
 func (sim *Simulation) TopPlayers(num int) PlayerSlice {
   rv := make(PlayerSlice, 0, len(sim.All_players))
   for _, player := range sim.All_players {
+    // Only include players who are actually available.
+    for _, team := range sim.Teams {
+      if team.HasPlayer(player.ID, true) {
+        goto NextPlayer
+      }
+    }
     rv = append(rv, player)
+    NextPlayer:
   }
   sort.Sort(rv)
 

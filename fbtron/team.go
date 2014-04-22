@@ -72,6 +72,20 @@ func (team *Team) Release() []*Player {
   return released
 }
 
+// HasPlayer returns true if this player is on this team's roster. If
+// keeper_only is true, returns true only if the player is also a keeper.
+func (team *Team) HasPlayer(player_id string, keeper_only bool) bool {
+  for _, members := range team.Roster {
+    for _, tm := range members {
+      if tm.Player != nil && tm.Player.ID == player_id {
+        return !keeper_only || tm.Keeper
+      }
+    }
+  }
+
+  return false
+}
+
 // CreditRosterWithWins adds the wins for this team to every player on the
 // roster, and also increments the number of seasons. This should only be called
 // once per season, ideally by Release().
