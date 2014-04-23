@@ -56,17 +56,17 @@ func (team *Team) Release() []*Player {
   team.CreditRosterWithWins()
 
   released := make([]*Player, 0, len(team.Roster)*2)
-  for position, members := range team.Roster {
-    newmembers := make([]TeamMember, 0, len(members))
-    for n := range members {
-      if members[n].Keeper {
+  for pos := range team.Roster {
+    newmembers := make([]TeamMember, 0, len(team.Roster[pos]))
+    for n := range team.Roster[pos] {
+      if team.Roster[pos][n].Keeper {
         newmembers = newmembers[:len(newmembers)+1]
-        newmembers[len(newmembers)-1] = members[n]
+        newmembers[len(newmembers)-1] = team.Roster[pos][n]
       } else {
-        released = append(released, members[n].Player)
+        released = append(released, team.Roster[pos][n].Player)
       }
     }
-    team.Roster[position] = newmembers
+    team.Roster[pos] = newmembers
   }
 
   return released

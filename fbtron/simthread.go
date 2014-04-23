@@ -86,15 +86,15 @@ func (sim *Simulation) AddPlayersToPositionLists(players []*Player) {
   num_players := 0
   num_player_pos := 0
 
-  for _, player := range players {
+  for n := range players {
     num_players++
-    for _, pos := range player.Positions {
+    for _, pos := range players[n].Positions {
       num_player_pos++
       if sim.Avail_players[pos] == nil {
         sim.Avail_players[pos] = make(PlayerSet, 0)
       }
 
-      sim.Avail_players[pos][player.ID] = player
+      sim.Avail_players[pos][players[n].ID] = players[n]
     }
   }
 }
@@ -153,9 +153,9 @@ func (sim *Simulation) RandomAvailablePlayer(position string) *Player {
   // TODO: Use weighted randomness, picking better players more often.
   var player *Player
   pindex := rand.Intn(len(allplayers))
-  for _, p := range allplayers {
+  for n := range allplayers {
     if pindex == 0 {
-      player = p
+      player = allplayers[n]
       break
     }
     pindex--
@@ -172,20 +172,13 @@ func (sim *Simulation) RandomAvailablePlayer(position string) *Player {
 // ScoreSeason compares each team to each other team. For each stat, the team
 // with the greater value is awarded a win (ties are ignored).
 func (sim *Simulation) ScoreSeason() {
-  stat_cache := make(map[string]map[int]float64, len(stat_types))
+  cache := make(map[int]float64, len(sim.Teams))
   for stat := range stat_types {
-    stat_cache[stat] = make(map[int]float64, len(sim.Teams))
-    for n, team := range sim.Teams {
-      stat_cache[stat][n] = team.GetStat(stat)
-    }
-  }
-
-  var astat, diff float64
-  for _, cache := range stat_cache {
+    var diff float64
     for a := range sim.Teams {
-      astat = cache[a]
+      cache[a] = sim.Teams[a].GetStat(stat)
       for b := 0; b < a; b++ {
-        diff = astat - cache[b]
+        diff = cache[a] - cache[b]
         if diff > 0 {
           sim.Teams[a].wins++
         } else if diff < 0 {
@@ -255,14 +248,14 @@ func (ps PlayerSlice) Swap(i, j int) {
 
 func (sim *Simulation) TopPlayers(num int) PlayerSlice {
   rv := make(PlayerSlice, 0, len(sim.All_players))
-  for _, player := range sim.All_players {
+  for p := range sim.All_players {
     // Only include players who are actually available.
-    for _, team := range sim.Teams {
-      if team.HasPlayer(player.ID, true) {
+    for t := range sim.Teams {
+      if sim.Teams[t].HasPlayer(sim.All_players[p].ID, true) {
         goto NextPlayer
       }
     }
-    rv = append(rv, player)
+    rv = append(rv, sim.All_players[p])
     NextPlayer:
   }
   sort.Sort(rv)
@@ -283,10 +276,10 @@ func (sim *Simulation) AddKeeper(player_id string, team_id int) {
 
   // Find the player
   var player *Player
-  for _, players := range sim.Avail_players {
-    for _, p := range players {
-      if p.ID == player_id {
-        player = p
+  for pos := range sim.Avail_players {
+    for n := range sim.Avail_players[pos] {
+      if sim.Avail_players[pos][n].ID == player_id {
+        player = sim.Avail_players[pos][n]
         goto Found
       }
     }
@@ -313,8 +306,8 @@ func (sim *Simulation) RemoveKeeper(keeper_id string, team_id int) {
 
 // ResetStats resets every player's stats to zero
 func (sim *Simulation) ResetStats() {
-  for _, p := range sim.All_players {
-    p.ResetWins()
+  for n := range sim.All_players {
+    sim.All_players[n].ResetWins()
   }
 
   // TODO: Also reset some stats for teams?
