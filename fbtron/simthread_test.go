@@ -72,13 +72,13 @@ func TestDoDraft(t *testing.T) {
     }
   }
 
-  num_players := 0
+  num_after_season := 0
   for _, players := range sim.Avail_players {
-    num_players += len(players)
+    num_after_season += len(players)
   }
-  if num_players == 0 {
+  if num_after_season == 0 {
     t.Errorf("DoDraft: expected >0 available player after draft, got %d",
-             num_players)
+             num_after_season)
   }
 }
 
@@ -138,30 +138,65 @@ func TestScoreSeason(t *testing.T) {
 func TestEndSeason(t *testing.T) {
   sim := FakeSimulation("")
 
-  num_players_start := 0
+  num_before_draft := 0
   for _, players := range sim.Avail_players {
-    num_players_start += len(players)
+    num_before_draft += len(players)
   }
 
   sim.DoDraft()
+
+  num_after_draft := 0
+  for _, players := range sim.Avail_players {
+    num_after_draft += len(players)
+  }
+
+  for n := range sim.Teams {
+    sim.Teams[n].wins = n+1
+  }
 
   // End the season and expect the number of players to be back where we
   // started.
   sim.EndSeason()
 
-  num_players := 0
+  // Make sure the players all got released and got their wins applied.
+  num_after_season := 0
+  num_with_wins := 0
+  num_with_seasons := 0
   for _, players := range sim.Avail_players {
-    num_players += len(players)
-  }
-  if num_players != num_players_start {
-    t.Errorf("EndSeason: expected num_players unchanged, got %d != %d",
-             num_players, num_players_start)
+    num_after_season += len(players)
+    for _, p := range players {
+      if p.Total_wins > 0 {
+        num_with_wins++
+      }
+      if p.Num_seasons > 0 {
+        num_with_seasons++
+      }
+    }
   }
 
-  // TODO: Also add wins and make sure the players all got the wins applied.
+  if num_after_draft == num_before_draft {
+    t.Errorf("EndSeason: expected before and after draft changed, got %d = %d",
+             num_before_draft, num_after_draft)
+  }
+  if num_after_season != num_before_draft {
+    t.Errorf("EndSeason: expected before and after season unchanged, " +
+             "got %d != %d", num_before_draft, num_after_season)
+  }
+  if num_with_wins != num_before_draft - num_after_draft {
+    t.Errorf("EndSeason: Not enough players got wins: expected %d, got %d",
+             num_before_draft - num_after_draft, num_with_wins)
+  }
+  if num_with_seasons != num_before_draft - num_after_draft {
+    t.Errorf("EndSeason: Not enough players got seasons: expected %d, got %d",
+             num_before_draft - num_after_draft, num_with_seasons)
+  }
 }
 
 func TestMerge(t *testing.T) {
+  // TODO
+}
+
+func TestTopPlayers(t *testing.T) {
   // TODO
 }
 
