@@ -7,6 +7,7 @@ import (
   "html/template"
   "net/http"
   "strconv"
+  "time"
 )
 
 const (
@@ -20,6 +21,7 @@ type JsonData struct {
   Num_seasons   int
   Top_players   PlayerSlice
   Teams         []Team
+  Timemilli     int
 }
 
 type UserAction struct {
@@ -69,6 +71,7 @@ func GetData(w http.ResponseWriter, req *http.Request) {
                            Num_seasons: sim_totals.Num_seasons,
                            Top_players: sim_totals.TopPlayers(100),
                            Teams:       sim_totals.Teams,
+                           Timemilli:   int(time.Now().UnixNano()/1000000),
                        }); err != nil {
     fmt.Println(err)
   }

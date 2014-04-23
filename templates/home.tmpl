@@ -19,7 +19,7 @@
       var start = $.now()
 
       // Show num_seasons speed sparkline
-      ShowVelocity(data['Num_seasons'])
+      ShowVelocity(data['Num_seasons'], data['Timemilli'])
 
       // Show top players
       ShowTopPlayers(data['Top_players'], data['Teams'])
@@ -32,13 +32,20 @@
       ScheduleGetData();
     }
 
-    var recent_velocity = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    var recent_velocity = [null,null,null,null,null,null,null,null,null,null,
+                           null,null,null,null,null,null,null,null,null,null]
     var last_num_seasons = 0
-    function ShowVelocity(num_seasons) {
-      var velocity = num_seasons - last_num_seasons
+    var last_timemilli = 0
+    function ShowVelocity(num_seasons, timemilli) {
+      var velocity = 0
+      if (last_timemilli > 0) {
+        velocity = Math.floor((num_seasons - last_num_seasons) /
+                              (timemilli - last_timemilli) * 1000)
+        recent_velocity.push(velocity)
+        recent_velocity.shift()
+      }
       last_num_seasons = num_seasons
-      recent_velocity.push(velocity)
-      recent_velocity.shift()
+      last_timemilli = timemilli
       $('#velocity').html(velocity)
       $('#velocity-sparkline').sparkline(recent_velocity);
     }
