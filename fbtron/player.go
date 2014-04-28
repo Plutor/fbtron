@@ -115,7 +115,11 @@ func BuildPlayerFromCsvRecord(
     case "lastname":
       p.Lastname = record[n]
     case "position":
-      p.Positions = []string { strings.ToUpper(record[n]) }
+      position := strings.ToUpper(record[n])
+      if position == "LF" || position == "CF" || position == "RF" {
+        position = "OF"
+      }
+      p.Positions = []string { position }
     case "start_percent":
       // TODO: I don't like having to do this, but since the 2013 steamer files
       // don't have eligible positions, we've gotta fake it. The overlap is so
