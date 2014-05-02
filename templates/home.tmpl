@@ -16,6 +16,11 @@
     }
 
     function ParseAndShowData(data, textStatus, jqXHR) {
+      if (!refresh_enabled) {
+        ScheduleGetData();
+        return;
+      }
+
       var start = $.now()
 
       // Show num_seasons speed sparkline
