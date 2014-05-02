@@ -57,8 +57,8 @@ func TestInitTeams(t *testing.T) {
     t.Errorf("InitTeams: expected 10 teams created, got %d", v)
   }
   for n := range sim.Teams {
-    if v := sim.Teams[n].GetOpenPosition(); v == "" {
-      t.Errorf("InitTeams: expected non-blank empty position, got '%s'", v)
+    if v := sim.Teams[n].GetAllOpenPositions(); len(v) == 0 {
+      t.Errorf("InitTeams: expected open positions, got %s", v)
     }
   }
 }
@@ -67,8 +67,8 @@ func TestDoDraft(t *testing.T) {
   sim := FakeSimulation("_big")
   sim.DoDraft()
   for n := range sim.Teams {
-    if v := sim.Teams[n].GetOpenPosition(); v != "" {
-      t.Errorf("DoDraft: team %d expected blank empty position, got '%s'", n, v)
+    if v := sim.Teams[n].GetAllOpenPositions(); len(v) != 0 {
+      t.Errorf("DoDraft: team %d expected no empty position, got '%s'", n, v)
     }
   }
 

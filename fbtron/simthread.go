@@ -121,23 +121,12 @@ func (sim *Simulation) RunSeason() {
 
 func (sim *Simulation) DoDraft() {
   for n := range sim.Teams {
-    team := sim.Teams[n]
-    for {
-      pos := team.GetOpenPosition()
-      if pos == "" {
-        break
-      }
-
-      // Choose a random available player
+    for _, pos := range sim.Teams[n].GetAllOpenPositions() {
+      // Choose a random available player and add him to the team.
       p := sim.RandomAvailablePlayer(pos)
-      if p == nil {
-        // None available! BIG PROBLEM!
-        // TODO: What do we do?
-        break
+      if p != nil {
+        sim.Teams[n].AddPlayer(p, false)
       }
-
-      // Add to the team
-      team.AddPlayer(p, false)
     }
   }
 }
@@ -272,7 +261,6 @@ func (sim *Simulation) AddKeeper(player_id string, team_id int) {
     fmt.Println("Couldn't find team")
     return
   }
-  team := sim.Teams[team_id]
 
   // Find the player
   var player *Player
@@ -289,7 +277,7 @@ func (sim *Simulation) AddKeeper(player_id string, team_id int) {
   Found:
 
   // Add to the team
-  team.AddPlayer(player, true)
+  sim.Teams[team_id].AddPlayer(player, true)
 
   // Remove from any position list
   for _, pos := range player.Positions {
